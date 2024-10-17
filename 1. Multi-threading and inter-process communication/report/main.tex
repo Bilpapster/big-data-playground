@@ -50,6 +50,9 @@ The rest of our work is structured as follows. We devote one section for each on
 \label{section:problem1}
 This is the section for the first problem.
 \subsection{Problem Statement}
+It is known that in Linear Algebra we can multiply a matrix with a vector from the right-hand side, provided that the number of columns in the matrix equals the number of rows in the vector. For instance, given a matrix $\mathbf{A}$ with dimensions $n~\times~m$ and a vector $v$ with dimensions $m~\times~1$, then the product $\mathbf{A}*\mathbf{v}$ is an $n~\times~1$ vector, which results from the implementation of the well-known method of multiplying a matrix with a vector. An example is given following: \todo
+
+Provided that we are capable of using $k$ threads, where $k$ is a power of 2 and the matrix has dimensions $n~\times~m$, where $n$ is also a power of 2 and $n>k$, design a solution that computes the product $\mathbf{A}*\mathbf{v}$ using $k$ threads with the most efficient way. Your solution has to initialize both the matrix $\mathbf{A}$ and the vector $\mathbf{v}$ with random numbers in the range $[0, 10]$.
 
 \section{Problem 2: Simulating a pandemic}
 \label{section:problem2}
