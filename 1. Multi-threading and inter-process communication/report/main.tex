@@ -66,8 +66,23 @@ Develop a solution that simulates the above behavior. Your solution should also 
 
 \section{Problem 3: Key-value server store}
 \label{section:problem3}
-This is the section for the third problem.
+We present here the third problem of the assignment. The main focus of the problem is the inter-process communication, leveraging TCP sockets in Java programming language.
+
 \subsection{Problem Statement}
+Develop a client-server application that works as follows.
+
+\textbf{Server}. The server starts its operation by initializing an empty Hash Table. The Hash Table stores key-value pairs and has size of $2^{20}$. Next, the server opens a TCP port, the number of which is passed as a program argument (e.g., 8888, 9999, etc.). The server awaits for clients to connect.
+
+\textbf{Client}. The client starts its operation by trying to connect with the server, in the specified TCP port. Again, the port is passed as a program argument.
+
+\textbf{Communication protocol}. After the successful connection between server and client, the client can send messages to the server, requesting some action from a predefined list of available actions. In particular, the client can perform the following operations:
+\begin{description}
+  \item[Operation 0] Terminates the connection between client and server. Operation code: \texttt{0}.
+  \item[Operation 1] Inserts a key-value pair in the Hash Table stored in the server-side. Operation code: (\texttt{1, K, V}), where \texttt{K} and \texttt{V} is the key and value to be inserted respectively.
+  \item[Operation 2] Deletes a key-value pair from the Hash Table kept in the server-side. Operation code: (\texttt{2, K}), where \texttt{K} is the key to be deleted, jointly with the stored value that is associated with it.
+  \item[Operation 3] Searches for a key and retrieves its value (if exists). Operation code: (\texttt{3, K}), where \texttt{K} is the key to search for.
+\end{description}
+
 
 \section{Problem 4: Multi-server producer-consumer interaction}
 \label{section:problem4}
