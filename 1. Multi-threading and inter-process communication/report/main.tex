@@ -5,12 +5,15 @@
   \providecommand\BibTeX{{%
     Bib\TeX}}}
   \settopmatter{printacmref=false}
-  
 
-  \begin{document}
+\renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\textit{#1}}
+\usepackage{xcolor}
+\newcommand{\todo}{{\color{red}\textbf{TODO} }}
 
-\title{Multi-Threading and Inter-Process Communication}
-\subtitle{M.Sc. course on "Technologies for Big Data Analysis" - Assignment 1}
+\begin{document}
+
+\title{Multi-Threading Programming and Inter-Process Communication}
+\subtitle{M.Sc. course on ``Technologies for Big Data Analysis'' - Assignment 1}
 
 \author{Christos Balaktsis (1234)}
 \email{balaktsis@csd.auth.gr}
@@ -26,22 +29,19 @@
 \maketitle
 
 \section{Introduction}
-ACM's consolidated article template, introduced in 2017, provides a
-consistent \LaTeX\ style for use across ACM publications, and
-incorporates accessibility and metadata-extraction functionality
-necessary for future Digital Library endeavors. Numerous ACM and
-SIG-specific \LaTeX\ templates have been examined, and their unique
-features incorporated into this single new template.
 
-If you are new to publishing with ACM, this document is a valuable
-guide to the process of preparing your work for publication. If you
-have published with ACM before, this document provides insight and
-instruction into more recent changes to the article template.
+The current document is a technical report for the first programming assignment in the M.Sc. course on \emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.Sc Program}\footnote{https://dws.csd.auth.gr/} of the Aristotle University of Thessaloniki, Greece. The course is taught by Professor Apostolos Papadopoulos~\footnote{https://datalab-old.csd.auth.gr/$\sim$apostol/}. The authors attended the course during their first year of Ph.D. studies at the Institution.
 
-The ``\verb|acmart|'' document class can be used to prepare articles
-for any ACM publication --- conference or journal, and for any stage
-of publication, from review to final ``camera-ready'' copy, to the
-author's own version, with {\itshape very} few changes to the source.
+The assignment contains 4 sub-problems and is part of a series, comprising 3 programming assignments on the following topics:
+\begin{description}
+  \item[Assignment 1] Multi-threading Programming and Inter-Process Communication
+  \item[Assignment 2] The Map-Reduce Programming Paradigm
+  \item[Assignment 3] Big Data Analytics with Scala and Apache Spark
+\end{description}
+In this document we focus on Assignment 1 and its 4 sub-problems. We refer to them as \emph{problems} in the rest of the document for simplicity. The source code of our solution has been made available at \texttt{\small https://github.com/ Bilpapster/big-data-playground}.
+
+\textbf{Roadmap}. 
+The rest of our work is structured as follows. We devote one section for each one of the 4 problems. That means problems 1, 2, 3 and 4 are presented in sections \todo respectively. For each problem, we first provide the problem statement, as given by the assignment. Next, we thoroughly present the reasoning and/or methodology we have adopted to approach the problem and devise a solution. Wherever applicable, we also provide insights about the source code implementation we have developed. For problems \todo, we complete the respective sections with a discussion about alternatives or improvements the solution could accept, in order to successfully support more complex requirements. Lastly, we conclude our work in section \todo.
 
 \section{Template Overview}
 As noted in the introduction, the ``\verb|acmart|'' document class can
