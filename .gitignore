@@ -22,3 +22,31 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+
+# LaTeX-specific exclusions
+**/*.aux
+**/*.cut
+**/*.bbl
+**/*.bcf
+**/*.blg
+**/*.idx
+**/*.ind
+**/*.lof
+**/*.lot
+**/*.out
+**/*.toc
+**/*.acn
+**/*.acr
+**/*.alg
+**/*.glg
+**/*.glo
+**/*.gls
+**/*.ist
+**/*.fls
+**/*.log
+**/*.nav
+**/*.snm
+**/*.fdb_latexmk
+**/*.synctex.gz
+**/*.run.xm
