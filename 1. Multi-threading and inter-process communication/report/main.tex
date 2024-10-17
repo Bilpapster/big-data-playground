@@ -16,6 +16,8 @@
 % christos 1, 4
 % vasilis 2, 3
 
+\usepackage{amsmath}
+
 \begin{document}
 
 \title{Multi-Threading Programming and Inter-Process Communication}
@@ -53,7 +55,29 @@ The rest of our work is structured as follows. We devote one section for each on
 \label{section:problem1}
 We discuss here the first problem of the assignment. The main target of the assignment is using multi-threading programming in Java programming language to concurrently perform an algebraic operation.
 \subsection{Problem Statement}
-It is known that in Linear Algebra we can multiply a matrix with a vector from the right-hand side, provided that the number of columns in the matrix equals the number of rows in the vector. For instance, given a matrix $\mathbf{A}$ with dimensions $n~\times~m$ and a vector $v$ with dimensions $m~\times~1$, then the product $\mathbf{A}*\mathbf{v}$ is an $n~\times~1$ vector, which results from the implementation of the well-known method of multiplying a matrix with a vector. An example is given following: \todo
+It is known that in Linear Algebra we can multiply a matrix with a vector from the right-hand side, provided that the number of columns in the matrix equals the number of rows in the vector. For instance, given a matrix $\mathbf{A}$ with dimensions $n~\times~m$ and a vector $v$ with dimensions $m~\times~1$, then the product $\mathbf{A}*\mathbf{v}$ is an $n~\times~1$ vector, which results from the implementation of the well-known method of multiplying a matrix with a vector. An example is given following:
+\begin{displaymath}
+  \begin{bmatrix}
+    1 & 0 & 2 & 0 \\
+    0 & 3 & 0 & 4 \\
+    0 & 0 & 5 & 0 \\
+    6 & 0 & 0 & 7
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    2 \\
+    5 \\
+    1 \\
+    8
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    4  \\
+    47 \\
+    5  \\
+    68
+  \end{bmatrix}
+\end{displaymath}
 
 Provided that we are capable of using $k$ threads, where $k$ is a power of 2 and the matrix has dimensions $n~\times~m$, where $n$ is also a power of 2 and $n>k$, design a solution that computes the product $\mathbf{A}*\mathbf{v}$ using $k$ threads with the most efficient way. Your solution has to initialize both the matrix $\mathbf{A}$ and the vector $\mathbf{v}$ with random numbers in the range $[0, 10]$.
 
