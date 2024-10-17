@@ -61,7 +61,7 @@ public class MatrixMultiplier extends Thread{
 
         int rows = Integer.parseInt(args[0]);
         int columns = Integer.parseInt(args[1]);
-        int threads = Integer.parseInt(args[1]);
+        int threads = Integer.parseInt(args[2]);
 
         // If rows are less than the number of threads, then create exact #rows threads.
         if (rows < threads)
