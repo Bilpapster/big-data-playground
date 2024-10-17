@@ -50,3 +50,31 @@ replay_pid*
 **/*.fdb_latexmk
 **/*.synctex.gz
 **/*.run.xm
+
+# Scala-specific 
+*.class
+
+# sbt specific
+.settings/
+.cache/
+.history/
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.project
+.classpath
+.cache
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+
+# IntelliJ IDEA specific
+**/.idea/
+**/target/
+**/*.iml
+
