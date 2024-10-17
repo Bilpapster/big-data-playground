@@ -9,6 +9,8 @@
 \renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\textit{#1}}
 \usepackage{xcolor}
 \newcommand{\todo}{{\color{red}\textbf{TODO} }}
+\newcommand{\disease}{{\small \texttt{DISEASE}} }
+\newcommand{\hospital}{{\small \texttt{HOSPITAL}} }
 
 % christos 1, 4
 % vasilis 2, 3
@@ -56,8 +58,11 @@ Provided that we are capable of using $k$ threads, where $k$ is a power of 2 and
 
 \section{Problem 2: Race against a pandemic}
 \label{section:problem2}
-This is the section for the second problem.
+The second problem asks for leveraging multi-threading programming in Java programming language, in order to simulate a pandemic spread.
 \subsection{Problem Statement}
+In this problem, you have to simulate a (simplified) pandemic spread, taking into account new infections, hospitalizations and recoveries occurring concurrently. In particular, suppose that a thread named \disease produces periodically (e.g., every 1 second) a random number of new infected people in the range $(0, k]$ that are in need of hospitalization in ICU\footnote{ICU: Intensive Care Unit}. The Health Care System has a limited number of ICU beds, let $e$ (e.g., 20). At the same time, a thread named \hospital periodically (e.g., every 5 seconds) treats a random number of infected patients in the range $(0, h]$, where $h<k$. When a patient is treated the ICU bed used for their treatment is no longer occupied; thus available for use by another patient.
+
+Develop a solution that simulates the above behavior. Your solution should also keep track of the total number of treated patients, as well as the ones that were not able to find a spot in ICU. The simulation must complete its execution after a predefined number of steps (or time period), which will be given as program argument, alongside with all aforementioned parameters (periods, $k$, $h$, $e$). You should test your solution against different values of the parameters, in order to verify that it correctly operates in all possible cases. How would you convert your solution if, instead of a single hospital, there were three of them, with a single, shared queue of patients?
 
 \section{Problem 3: Key-value server store}
 \label{section:problem3}
