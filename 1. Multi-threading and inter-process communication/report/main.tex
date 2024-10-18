@@ -81,6 +81,25 @@ It is known that in Linear Algebra we can multiply a matrix with a vector from t
 
 Provided that we are capable of using $k$ threads, where $k$ is a power of 2 and the matrix has dimensions $n~\times~m$, where $n$ is also a power of 2 and $n>k$, design a solution that computes the product $\mathbf{A}*\mathbf{v}$ using $k$ threads with the most efficient way. Your solution has to initialize both the matrix $\mathbf{A}$ and the vector $\mathbf{v}$ with random numbers in the range $[0, 10]$.
 
+\subsection{Proposed approach}
+
+\subsubsection{Setting}
+Our implementation is run and tested in a Linux environment, using the Java programming language. We have used the Java Development Kit (JDK) version 11.0.11. The source code is developed in IntelliJ IDEA Community Edition 2021.1.1. The code is compiled and executed in the terminal, using the following commands:
+\begin{verbatim}
+  javac MatrixMultiplier.java <n> <m> <k>
+  java MatrixMultiplier
+\end{verbatim}
+
+\subsubsection{Implementation}
+The implementation of the solution proceeds as follows. 
+
+First, the main thread initializes the matrix $\mathbf{A}$, of size $n \times m$, and the vector $\mathbf{v}$, of size $n \times 1$, with random numbers in the range $[0, 10]$. Next, the main thread creates $k$ threads, where $k$ is a power of 2. All threads are initiated with references to the matrix $\mathbf{A}$, the vector $\mathbf{v}$, and an empty vector $\mathbf{result}$. The latter is used to store the result of the product of the assigned rows of the matrix with the vector.
+
+Each thread is assigned a range of rows of the matrix $\mathbf{A}$, determined by the $start$ and $end$ indices, to process. The range is calculated based on the total number of rows and the number of threads, i.e., $\lfloor n/k \rfloor$, with the last thread being assigned any remaining rows, covering cases off the assumption that $n,k$ are powers of 2. Each thread then computes the product of the assigned rows of the matrix $\mathbf{A}$ with the vector $\mathbf{v}$ by iterating over the assigned rows and multiplying the corresponding row of the matrix with the vector. It is worth noting that although the thread retains access to the whole matrix, it only accesses the indicated rows. Finally, the result of this computation is stored in the corresponding indices of the vector $\mathbf{result}$, which is shared among all threads, so it is filled concurrently.
+
+Once all threads have completed their assigned computations, the main thread waits for them to finish. It then collects the results from all the threads and prints the final result. In the end, the main thread also prints the total time taken to compute the whole product, which is the time taken for all the threads to finish their computations, excluding the time taken for the initializations of the structures and threads.
+
+
 \section{Problem 2: Race against a pandemic}
 \label{section:problem2}
 The second problem asks for leveraging multi-threading programming in Java programming language, in order to simulate a pandemic spread.
