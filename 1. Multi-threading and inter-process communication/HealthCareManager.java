@@ -45,32 +45,36 @@ public class HealthCareManager {
     }
 
     private synchronized void handleUpdate(int number, boolean isInfection) {
-        // this is the critical part of our system, so it needs to be synchronized
+        // this is the critical part of our system, so it needs to be synchronized!
         if (isInfection) {
-            this.totalInfections += number;
-            boolean enoughBeds = this.availableBeds >= number;
-            if (enoughBeds) {
-                this.availableBeds -= number;
-//                this.currentlyInICU += number;
-                return;
-            }
-            // else if !enoughBeds
-            this.currentlyOutOfICU += number - availableBeds;
-            this.availableBeds = 0;
+            this.handleInfections(number);
             return;
         }
-        // else if we have new treatments
+        this.handleTreatments(number);
+    }
+
+    private void handleInfections(int infections) {
+        this.totalInfections += infections;
+        boolean enoughBeds = this.availableBeds >= infections;
+        if (enoughBeds) {
+            this.availableBeds -= infections;
+            return;
+        }
+        // else if !enoughBeds
+        this.currentlyOutOfICU += infections - availableBeds;
+        this.availableBeds = 0;
+    }
+
+    private void handleTreatments(int number) {
         int inICU = this.getCurrentlyInICU();
         boolean validTreatment = inICU >= number;
         if (validTreatment) {
             this.totalTreatments += number;
-//            this.currentlyInICU -= number;
             this.availableBeds += number;
             return;
         }
         // else if !validTreatment
         this.totalTreatments += inICU;
-//        this.currentlyInICU = 0;
         this.availableBeds = this.totalNumberOfBeds;
     }
 
