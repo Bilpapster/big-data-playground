@@ -1,3 +1,6 @@
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class HealthCareManager {
     // singleton design pattern
     private static HealthCareManager instance;
@@ -5,6 +8,13 @@ public class HealthCareManager {
     private HealthCareManager(int availableBeds) {
         this.totalNumberOfBeds = availableBeds;
         this.availableBeds = availableBeds;
+        try {
+            this.fileWriter = new FileWriter(FILE_NAME, true);
+            fileWriter.write("time,total_beds,in,out,treatments,infections\n");
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     } // intentionally private for compliance with the singleton design pattern
 
     private int availableBeds;
@@ -12,6 +22,9 @@ public class HealthCareManager {
     private int totalInfections = 0;
     private int totalTreatments = 0;
     private int currentlyOutOfICU = 0;
+    private long startTimeMillis = System.currentTimeMillis();
+    private FileWriter fileWriter;
+    private final String FILE_NAME = "data.csv";
 
     public static synchronized HealthCareManager getInstance(int availableBeds) {
         if (instance == null) {
@@ -48,9 +61,11 @@ public class HealthCareManager {
         // this is the critical part of our system, so it needs to be synchronized!
         if (isInfection) {
             this.handleInfections(number);
+            this.writeSnapshotToFile();
             return;
         }
         this.handleTreatments(number);
+        this.writeSnapshotToFile();
     }
 
     private void handleInfections(int infections) {
@@ -76,6 +91,32 @@ public class HealthCareManager {
         // else if !validTreatment
         this.totalTreatments += inICU;
         this.availableBeds = this.totalNumberOfBeds;
+    }
+
+    private synchronized void writeSnapshotToFile() {
+        long timeOffset = System.currentTimeMillis() - this.startTimeMillis;
+        try {
+            this.fileWriter = new FileWriter(FILE_NAME, true);
+            this.fileWriter.write(
+                    timeOffset +
+                            "," +
+                            this.totalNumberOfBeds +
+                            "," +
+                            this.getCurrentlyInICU() +
+                            "," +
+                            this.getCurrentlyOutOfICU() +
+                            "," +
+                            this.getTotalTreatments() +
+                            "," +
+                            this.getTotalInfections() +
+                            "\n"
+            );
+            this.fileWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
     }
 
 }
