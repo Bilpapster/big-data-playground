@@ -95,6 +95,8 @@ public class RaceAgainstPandemic {
         );
         disease.start();
         hospital.start();
+
+        new ProgressBar("", 100, (long) (SIMULATION_DURATION_SEC* 9.9)).start();
     }
 
     /**

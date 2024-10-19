@@ -22,7 +22,7 @@ public class HealthCareManager {
     private int totalInfections = 0;
     private int totalTreatments = 0;
     private int currentlyOutOfICU = 0;
-    private long startTimeMillis = System.currentTimeMillis();
+    private final long startTimeMillis = System.currentTimeMillis();
     private FileWriter fileWriter;
     private final String FILE_NAME = "data.csv";
 
@@ -83,14 +83,18 @@ public class HealthCareManager {
     private void handleTreatments(int number) {
         int inICU = this.getCurrentlyInICU();
         boolean validTreatment = inICU >= number;
-        if (validTreatment) {
-            this.totalTreatments += number;
-            this.availableBeds += number;
+
+        if (!validTreatment) {
+            number = inICU;
+        }
+        this.totalTreatments += number;
+        boolean directOccupancy = this.currentlyOutOfICU >= number;
+        if (directOccupancy) {
+            this.currentlyOutOfICU -= number;
             return;
         }
-        // else if !validTreatment
-        this.totalTreatments += inICU;
-        this.availableBeds = this.totalNumberOfBeds;
+        this.availableBeds += number - currentlyOutOfICU;
+        this.currentlyOutOfICU = 0;
     }
 
     private synchronized void writeSnapshotToFile() {
@@ -113,7 +117,7 @@ public class HealthCareManager {
             );
             this.fileWriter.close();
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.out.println("An error occurred while trying to access data file.");
             e.printStackTrace();
         }
 
