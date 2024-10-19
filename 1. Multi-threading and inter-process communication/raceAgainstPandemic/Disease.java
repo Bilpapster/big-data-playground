@@ -1,3 +1,5 @@
+package raceAgainstPandemic;
+
 import java.util.Random;
 
 public class Disease extends Thread {

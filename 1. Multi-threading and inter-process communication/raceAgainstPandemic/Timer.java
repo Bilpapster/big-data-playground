@@ -1,3 +1,5 @@
+package raceAgainstPandemic;
+
 public class Timer {
     private boolean running = true;
 

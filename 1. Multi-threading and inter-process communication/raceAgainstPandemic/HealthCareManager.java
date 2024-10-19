@@ -1,3 +1,5 @@
+package raceAgainstPandemic;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -24,7 +26,7 @@ public class HealthCareManager {
     private int currentlyOutOfICU = 0;
     private final long startTimeMillis = System.currentTimeMillis();
     private FileWriter fileWriter;
-    private final String FILE_NAME = "data.csv";
+    private final String FILE_NAME = "1. Multi-threading and inter-process communication/raceAgainstPandemic/results/data.csv";
 
     public static synchronized HealthCareManager getInstance(int availableBeds) {
         if (instance == null) {

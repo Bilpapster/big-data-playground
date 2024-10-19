@@ -1,3 +1,7 @@
+package raceAgainstPandemic;
+
+import util.ProgressBar;
+
 public class RaceAgainstPandemic {
 
     // simulation-level arguments
@@ -65,10 +69,10 @@ public class RaceAgainstPandemic {
         System.out.println("Simulation parameters");
         System.out.printf(parameterPlaceholder + "%5s sec\n", "Simulation duration", SIMULATION_DURATION_SEC);
         System.out.printf(parameterPlaceholder + "%5s beds\n", "Available ICU beds", HEALTH_CARE_SYSTEM_AVAILABLE_BEDS);
-        System.out.println("  -- Disease");
+        System.out.println("  -- raceAgainstPandemic.Disease");
         System.out.printf(parameterPlaceholder + "%5s sec\n", "New infections every", DISEASE_PERIOD_SEC);
         System.out.printf(parameterPlaceholder + "%5s people\n", "Max new infections per step", DISEASE_MAX_NEW_INFECTIONS);
-        System.out.println("  -- Hospital");
+        System.out.println("  -- raceAgainstPandemic.Hospital");
         System.out.printf(parameterPlaceholder + "%5s sec\n", "New treatments every", HOSPITAL_PERIOD_SEC);
         System.out.printf(parameterPlaceholder + "%5s people\n", "Max new treatments per step", HOSPITAL_MAX_NEW_TREATMENTS);
         System.out.println("-------------");

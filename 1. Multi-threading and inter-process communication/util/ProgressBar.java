@@ -1,4 +1,5 @@
 // credits to https://medium.com/javarevisited/how-to-display-progressbar-on-the-standard-console-using-java-18f01d52b30e
+package util;
 
 import java.util.stream.Stream;
 
