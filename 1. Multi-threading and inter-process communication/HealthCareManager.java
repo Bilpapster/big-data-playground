@@ -12,7 +12,6 @@ public class HealthCareManager {
     private int totalInfections = 0;
     private int totalTreatments = 0;
     private int currentlyOutOfICU = 0;
-    private int currentlyInICU = 0;
 
     public static synchronized HealthCareManager getInstance(int availableBeds) {
         if (instance == null) {
@@ -21,7 +20,7 @@ public class HealthCareManager {
         return instance;
     }
 
-    public synchronized int getCurrentlyInICU() {
+    public int getCurrentlyInICU() {
         return this.totalNumberOfBeds - this.availableBeds;
     }
 
@@ -52,7 +51,7 @@ public class HealthCareManager {
             boolean enoughBeds = this.availableBeds >= number;
             if (enoughBeds) {
                 this.availableBeds -= number;
-                this.currentlyInICU += number;
+//                this.currentlyInICU += number;
                 return;
             }
             // else if !enoughBeds
@@ -61,21 +60,18 @@ public class HealthCareManager {
             return;
         }
         // else if we have new treatments
-        // we have new treatments
-//        System.out.println("We have " + number + " new treatments");
-        boolean validTreatment = this.currentlyInICU >= number;
+        int inICU = this.getCurrentlyInICU();
+        boolean validTreatment = inICU >= number;
         if (validTreatment) {
             this.totalTreatments += number;
-            this.currentlyInICU -= number;
+//            this.currentlyInICU -= number;
             this.availableBeds += number;
             return;
         }
         // else if !validTreatment
-        System.out.println("Invalid treatment found");
-        this.totalTreatments += currentlyInICU;
-        this.currentlyInICU = 0;
+        this.totalTreatments += inICU;
+//        this.currentlyInICU = 0;
         this.availableBeds = this.totalNumberOfBeds;
-        return;
     }
 
 }

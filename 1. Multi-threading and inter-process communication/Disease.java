@@ -4,35 +4,29 @@ public class Disease extends Thread {
     private final int maxNewInfections;
     private final int period;
     private final int iterations;
-    private boolean flag = true;
+    private boolean[] flag;
     private final HealthCareManager healthCareManager;
     private final Random rand = new Random();
 
-    public Disease(int period, int maxNewInfections, int iterations, HealthCareManager healthCareManager) {
+    public Disease(int period, int maxNewInfections, int iterations, HealthCareManager healthCareManager, boolean[] flag) {
         this.period = period;
         this.maxNewInfections = maxNewInfections;
         this.iterations = iterations;
         this.healthCareManager = healthCareManager;
+        this.flag = flag;
     }
 
     @Override
     public void run() {
-        for (int i = 0; i < iterations; i++) {
-//        while (flag) {
+        while (flag[0]) {
             int newInfections = rand.nextInt(maxNewInfections) + 1;
-//            int newInfections = 4;
             this.healthCareManager.handleNewInfections(newInfections);
             try {
-                sleep(period);
+                sleep(period * 1000);
             } catch (InterruptedException e) {
                 System.out.println("Exception: Thread DISEASE was interrupted while sleeping:");
                 e.printStackTrace();
             }
         }
-        System.out.println("DISEASE has successfully finished " + iterations + " rounds of infection.");
-    }
-
-    public void finishSimulation() {
-        this.flag = false;
     }
 }
