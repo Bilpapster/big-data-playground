@@ -11,7 +11,7 @@ public class HealthCareManager {
         this.totalNumberOfBeds = availableBeds;
         this.availableBeds = availableBeds;
         try {
-            this.fileWriter = new FileWriter(FILE_NAME, true);
+            this.fileWriter = new FileWriter(FILE_NAME);
             fileWriter.write("time,total_beds,in,out,treatments,infections\n");
             fileWriter.close();
         } catch (IOException e) {
@@ -20,7 +20,7 @@ public class HealthCareManager {
     } // intentionally private for compliance with the singleton design pattern
 
     private int availableBeds;
-    private final int totalNumberOfBeds;
+    private int totalNumberOfBeds;
     private int totalInfections = 0;
     private int totalTreatments = 0;
     private int currentlyOutOfICU = 0;
@@ -123,6 +123,13 @@ public class HealthCareManager {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * Resets all counters and configurations.
+     */
+    public static void reset() {
+        instance = null;
     }
 
 }
