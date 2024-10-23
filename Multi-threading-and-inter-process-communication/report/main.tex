@@ -85,12 +85,24 @@ Provided that we are capable of using $k$ threads, where $k$ is a power of 2 and
 \subsection{Proposed approach}
 
 \subsubsection{Setting}
-Our implementation is run and tested in a Linux environment, using the Java programming language. We have used the Java Development Kit (JDK) version 11.0.11. The source code is developed in IntelliJ IDEA Community Edition 2021.1.1. The code is compiled and executed in the terminal, using the following commands, starting from the root folder of the repository:
+\label{subsub:setting}
+Our implementation is run and tested in a Linux environment with XYZ cores, using the Java programming language.
+We have used the Java Development Kit (JDK) version 11.0.11.
+The source code is developed in IntelliJ IDEA Community Edition 2021.1.1.
+The code is compiled and executed in the terminal, using the following commands, starting from the root folder of the repository:
 \begin{verbatim}
   cd MatrixMultiplication
   javac MatrixMultiplier.java <n> <m> <k>
   java MatrixMultiplier
 \end{verbatim}
+where:
+\begin{itemize}
+  \item \texttt{<n>} is the total number of rows of matrix \textbf{A} and vector \textbf{v}
+  \item \texttt{<m>} is the total number of columns of the matrix
+  \item \texttt{<k>} is the total number of threads
+\end{itemize}
+Note that the command line arguments have to be exactly 3 and all individual arguments should be integer parsable. An exception will be thrown, in case any of the aforementioned conditions is violated, accompanied by an explanatory message.
+
 
 \subsubsection{Implementation}
 The implementation of the solution proceeds as follows.
@@ -100,6 +112,22 @@ First, the main thread initializes the matrix $\mathbf{A}$, of size $n \times m$
 Each thread is assigned a range of rows of the matrix $\mathbf{A}$, determined by the $start$ and $end$ indices, to process. The range is calculated based on the total number of rows and the number of threads, i.e., $\lfloor n/k \rfloor$, with the last thread being assigned any remaining rows, covering cases off the assumption that $n,k$ are powers of 2. Each thread then computes the product of the assigned rows of the matrix $\mathbf{A}$ with the vector $\mathbf{v}$ by iterating over the assigned rows and multiplying the corresponding row of the matrix with the vector. It is worth noting that although the thread retains access to the whole matrix, it only accesses the indicated rows. Finally, the result of this computation is stored in the corresponding indices of the vector $\mathbf{result}$, which is shared among all threads, so it is filled concurrently.
 
 Once all threads have completed their assigned computations, the main thread waits for them to finish. It then collects the results from all the threads and prints the final result. In the end, the main thread also prints the total time taken to compute the whole product, which is the time taken for all the threads to finish their computations, excluding the time taken for the initializations of the structures and threads.
+
+\subsubsection{Evaluation}
+Our implementation is tested for multiple matrix-vector sizes on the system described in section \ref{subsub:setting}.
+A test class, \texttt{TestMatrixMultiplier}, can be found under the \texttt{/test} directory.
+We both evaluated the time difference between non-threading and threading executions, and ensured the $\textbf{A} \times \textbf{v}$ product results are the same in each case.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.75\linewidth]{figures/multiplication-times-dif-n}
+  \caption{Threaded matrix multiplication performance for different $n$ values.}
+  \label{fig:multiplication-times-dif-n}
+\end{figure}
+
+More specifically, Figure \ref{fig:multiplication-times-dif-n} exhibits how execution time changes for increasing number of rows $n$ for a constant number of threads $k=8$.
+
+
 
 
 \section{Problem 2: Race against a pandemic}
