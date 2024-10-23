@@ -100,21 +100,23 @@ public class MatrixMultiplier extends Thread{
         long finishTS = System.currentTimeMillis(); // End capturing time for thread operations
 
 
-        // Print matrix A
-        System.out.print("A=");
-        for (int i = 0; i<rows; i++)
-            System.out.println("\t" + Arrays.toString(matrix[i]));
-        System.out.println("--------------------------");
+        if (rows < 32) {
+            // Print matrix A
+            System.out.print("A=");
+            for (int i = 0; i < rows; i++)
+                System.out.println("\t" + Arrays.toString(matrix[i]));
+            System.out.println("--------------------------");
 
-        // Print vector v
-        System.out.print("v=");
-        System.out.println("\t" + Arrays.toString(vector));
-        System.out.println("--------------------------");
+            // Print vector v
+            System.out.print("v=");
+            System.out.println("\t" + Arrays.toString(vector));
+            System.out.println("--------------------------");
 
-        // Print result A*v
-        System.out.print("A*v=");
-        System.out.println(Arrays.toString(result));
-        System.out.println("--------------------------");
+            // Print result A*v
+            System.out.print("A*v=");
+            System.out.println(Arrays.toString(result));
+            System.out.println("--------------------------");
+        }
         System.out.println("Total time taken for threads:\t" + (finishTS-startTS) + " ms");
     }
 }
