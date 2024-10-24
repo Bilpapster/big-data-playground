@@ -42,11 +42,6 @@ public class TestMatrixMultiplier {
             int[][] matrix = MatrixMultiplier.createMatrix(rows, columns);
             int[] vector = MatrixMultiplier.createVector(columns);
 
-            // Calculate single-threaded result
-            long nonThreadedStartTime = System.currentTimeMillis();
-            int[] expectedResult = nonThreadedMatrixMultiply(matrix, vector);
-            long nonThreadedEndTime = System.currentTimeMillis();
-            System.out.println("Non-threaded execution time: " + (nonThreadedEndTime - nonThreadedStartTime) + " ms");
 
             for (int threads : threadCounts) {
                 System.out.print("Threads: " + threads + "\t");
