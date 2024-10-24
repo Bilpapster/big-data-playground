@@ -85,8 +85,8 @@ Provided that we are capable of using $k$ threads, where $k$ is a power of 2 and
 \subsection{Proposed approach}
 
 \subsubsection{Setting}
-\label{subsub:setting}
-Our implementation is run and tested in a Linux environment with XYZ cores, using the Java programming language.
+\label{subsubsec:setting}
+Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
 We have used the Java Development Kit (JDK) version 11.0.11.
 The source code is developed in IntelliJ IDEA Community Edition 2021.1.1.
 The code is compiled and executed in the terminal, using the following commands, starting from the root folder of the repository:
@@ -114,20 +114,44 @@ Each thread is assigned a range of rows of the matrix $\mathbf{A}$, determined b
 Once all threads have completed their assigned computations, the main thread waits for them to finish. It then collects the results from all the threads and prints the final result. In the end, the main thread also prints the total time taken to compute the whole product, which is the time taken for all the threads to finish their computations, excluding the time taken for the initializations of the structures and threads.
 
 \subsubsection{Evaluation}
-Our implementation is tested for multiple matrix-vector sizes on the system described in section \ref{subsub:setting}.
+Our implementation is tested for multiple matrix-vector sizes on the system described in section
+\ref{subsubsec:setting}.
 A test class, \texttt{TestMatrixMultiplier}, can be found under the \texttt{/test} directory.
-We both evaluated the time difference between non-threading and threading executions, and ensured the $\textbf{A} \times \textbf{v}$ product results are the same in each case.
+We both evaluated the time difference between non-threading and threading executions, and ensured the $\textbf{A} * \textbf{v}$ product results are the same in each case.
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.75\linewidth]{figures/multiplication-times-dif-n}
-  \caption{Threaded matrix multiplication performance for different $n$ values.}
+  \begin{subfigure}
+    \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1.eps}
+  \end{subfigure}
+  \begin{subfigure}
+    \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2.eps}
+  \end{subfigure}
+  \caption{Execution time for threaded matrix-vector multiplication for various numbers of threads and sizes.}
   \label{fig:multiplication-times-dif-n}
 \end{figure}
 
-More specifically, Figure \ref{fig:multiplication-times-dif-n} exhibits how execution time changes for increasing number of rows $n$ for a constant number of threads $k=8$.
+Figure \ref{fig:multiplication-times-dif-n} exhibits how execution time changes for different
+values of $n$, while the number of threads ($k$) increases.
+It should be noted that the column size is considered constant.
+In fact, all time values refer to the mean time for different values of $m$, which, in deed, did not exhibit any
+significant variance at all.
+By taking a closer look to the plots, the execution time significantly decreases as the number of threads increases from 1 to 4 for all matrix sizes \( n \).
+However, the impact of further increasing the number of threads from 4 to 16 diminishes, with only marginal improvements or stabilization observed. S
+pecifically:
 
+\begin{itemize}
+  \item For smaller matrix sizes (\( n = 512 \) and \( n = 1024 \)), there is a rapid reduction in execution time up
+  to 4 threads, after which the time stabilizes with little improvement, and even slightly increases in both cases.
+  \item For larger matrix sizes (\( n = 4096 \) and \( n = 16384 \)), a similar trend is observed.
+  \item The initial drop in execution time with up to 8 threads is pronounced, but adding more threads beyond that
+  point does not yield significant time reductions. For \( n = 16384 \), the time even appears to increase slightly
+  as the thread count grows beyond 8, as well as for $n=512$ and $n=1024$.
+\end{itemize}
 
+This behavior indicates that for the system under test, threading provides substantial performance gains up to a
+certain point (around 8 threads), beyond which the benefits plateau, suggesting the presence of bottlenecks or diminishing returns from parallelism.
+Overall, this is an expected outcome, taking into consideration that the number of available cores in CPU are 12.
 
 
 \section{Problem 2: Race against a pandemic}
