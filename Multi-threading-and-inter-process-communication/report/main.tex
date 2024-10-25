@@ -136,10 +136,10 @@ We both evaluated the time difference between non-threading and threading execut
   \subfloat[label for first figure \todo replace image and caption]{
     \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
     % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1}
-    }
-    \subfloat[label for second figure \todo replace image and caption]{
-      \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
-      % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
+  }
+  \subfloat[label for second figure \todo replace image and caption]{
+    \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
+    % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
   }
   \caption{Execution time for threaded matrix-vector multiplication for various numbers of threads and sizes.}
   \label{fig:multiplication-times-dif-n}
@@ -294,6 +294,77 @@ Develop a client-server application that works as follows.
   \item[Operation 3] Searches for a key and retrieves its value (if exists). Operation code: (\texttt{3, K}), where \texttt{K} is the key to search for.
 \end{description}
 
+\subsection{Proposed approach}
+
+\subsubsection{Setting}
+Our implementation is run and tested in both a Linux (Ubuntu 24.04) and a Windows 11 environment, using the Java programming language. We have used JDK 11.0.11 and IntelliJ IDEA Community Edition 2021.1.1. The code is compiled and executed in the terminal and comprises two parts, namely a Server and a Client. For the server, the code can be compiled and run with the following commands, starting from the root folder of the repository:
+
+\begin{verbatim}
+  cd keyValueStoreServerClient
+  javac Server.java <port>
+  java Server
+\end{verbatim}
+where \texttt{<port>} is the TCP port number the server listens at for incoming requests. The port number defaults to 8899, if no port is specified.
+
+For the client, the code can be compiled and run with the following commands, starting from the root folder of the repository:
+\begin{verbatim}
+  cd keyValueStoreServerClient
+  javac Client.java <filename> <port> <server_address>
+  java Client
+\end{verbatim}
+where:
+\begin{itemize}
+  \item \texttt{<filename>} is the path of the file to read the requests to execute from,
+  \item \texttt{<port>} is the TCP port number the server listens at for incoming requests. Defaults to 8899 if no port is specified.
+  \item \texttt{<server\_address>} is the IP address of the server and defaults to localhost if no address is specified.
+\end{itemize}
+
+\subsubsection{Implementation}
+We develop our solution on top of two custom-defined classes, namely \texttt{Server} and \texttt{Client}. In the former, we encapsulate the request handling rational with the various operation codes. In the latter, we implement the sequential reading of the text file lines, passing them as requests to the server-side. More specifically,
+\begin{itemize}
+  \item The \texttt{Server} class initializes an empty hash table as a Java \texttt{HashMap}, creates a web socket and waits for a client to be connected.
+  \item The \texttt{Client} class creates also a socket, connects to the server and provides it with the text file contents line by line.
+\end{itemize}
+Note that the communication between the two is finished when the client sends a request with operation code 0 to the server. We refer the interested reader to the \texttt{keyValueStoreServerClient} package for more details about the implementation of our solution.
+
+\subsubsection{Execution Screenshots}
+In this subsection we briefly present execution screenshots and visualizations of the simulation. In particular, figure~\ref{img:keyValue_server_execution} shows the execution result of the \emph{Server-side} program. The Server prints informative messages to the console both for the storage initialization part and the sequential requests that it receives from the Client.
+
+Figure~\ref{img:keyValue_client_execution} shows the execution result of the \emph{Client-side} program for the same input. The client prints informative messages to the console for each one of the requests made to the Server, as well as the received response for them.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.65\linewidth]{figures/key-value-store-server-execution.png}
+  \caption{Execution results of the key-value server program.}
+  \Description{A snapshot from IntelliJ IDEA code execution environment.}
+  \label{img:keyValue_server_execution}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.65\linewidth]{figures/key-value-store-client-execution.png}
+  \caption{Execution results of the key-value client program.}
+  \Description{A snapshot from IntelliJ IDEA code execution environment.}
+  \label{img:keyValue_client_execution}
+\end{figure}
+
+\subsubsection{Limitations of current implementation and further improvements}
+The current implementation successfully addresses the \emph{single-client} version of the problem. That means \emph{only one client} can be connected to the server at a time, sending requests and receiving answers.
+
+A more generic variation of the problem at hand raises this limitation. In particular, in this generic variation \emph{several clients} could be connected \emph{at the same time} to the server, sending requests and receiving back answers. \textbf{Our solution could support this generic variation of the problem with several modifications/extensions}. We discuss them in detail in the rest of this section.
+
+First, we define the generic variation of the problem in a more formal way. The definition is as follows.
+\begin{definition}
+  \textbf{Generic key-value store client-server problem}. There is a single server that stores a centralized hash table with key-value pairs. Multiple clients send requests to this server. Each client is implemented as a separate thread that connects to the server, sends a request and receives an answer. The server must be capable of handling multiple clients at the same time, \emph{assuring the integrity of the key-value store}.
+\end{definition}
+
+Based on this definition, we identify two important points in our implementation that should be altered, in order to successfully address the problem. The first is \textbf{decoupling request processing from the main server-side thread} and the second is \textbf{ensuring synchronization and mutual exclusion of threads in critical operations} of the storage content.
+
+We claim that with the following modifications, our solution could successfully support the generic version of the problem:
+\begin{itemize}
+  \item The server spawns a new thread when a new client is connected to it. The thread takes as parameters the socket of the client and the request and its responsibility is to handle the request and respond to the client. This way, the main thread of the server \textbf{is not blocked} and can await for more customers to connect. When a new client connects, the same process happens and the client is assigned to a new thread. The requests are served concurrently and can finish in an asynchronous order.
+  \item The Java keyword \texttt{synchronized} is added to the signature of the server-side method that handles requests. This way, synchronization and mutual exclusion can be achieved, leveraging Java's thread-safe mechanism. As a result, our application will never be in a state where two client threads try to access and/or \textbf{write} a different value for the same key at the same time; thus ensuring thread-safety. In other words, when multiple clients are served at the same time, \textbf{only one} client is accessing the critical part of our application at a given time unit and all the other are waiting for it to finish the critical operation.
+\end{itemize}
 
 \section{Problem 4: Multi-server producer-consumer interaction}
 \label{section:problem4}
