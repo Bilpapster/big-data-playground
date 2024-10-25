@@ -5,45 +5,56 @@ import java.net.*;
 import java.io.*;
 
 public class Client {
+    private static String serverAddress = DefaultValues.getDefaultServerAddress();
+    private static int port = DefaultValues.getDefaultPort();
+    private static String fileName = "keyValueStoreServerClient/requests.txt";
+
     public static void main(String[] args) throws IOException {
-        String serverHostName = "127.0.0.1"; // localhost todo read args
-        int port = 8888; // todo read args
-        if (args.length > 0) {
-            serverHostName = args[0];
-        }
-        System.out.println("Attempting to connect to host " + serverHostName);
+        parseArgs(args);
+
+        System.out.println("Attempting to connect to host " + serverAddress);
 
         Socket echoSocket = null;
         PrintWriter out = null;
         BufferedReader in = null;
-
         try {
-            echoSocket = new Socket(serverHostName, port);
+            echoSocket = new Socket(serverAddress, port);
             out = new PrintWriter(echoSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host: " + serverHostName);
+            System.err.println("Don't know about host: " + serverAddress);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to: " + serverHostName);
+            System.err.println("Couldn't get I/O for the connection to: " + serverAddress);
             System.exit(2);
         }
 
-        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-        String userInput;
-
-        System.out.println("Type Message (\"Bye.\" to quit):");
-        while ((userInput = stdIn.readLine()) != null) {
-            out.println(userInput);
-            if (userInput.equals("Bye."))
-                break;
-            System.out.println("echo: " + in.readLine());
-            System.out.print("next message: ");
+        System.out.println("Successfully connected to the server. Starting sending requests from file " + fileName);
+        BufferedReader stdIn = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+        String requestString;
+        while ((requestString = stdIn.readLine()) != null) {
+            System.out.println("Me: " + requestString);
+            out.println(requestString);
+            System.out.println("Response from Server: " + in.readLine());
+            System.out.println();
         }
-
         out.close();
         in.close();
         stdIn.close();
         echoSocket.close();
+    }
+
+    private static void parseArgs(String[] args) {
+        // args must be provided in the form "filename port ip" where both are optional but must respect this ordering
+        int numberOfArgs = args.length;
+        if (numberOfArgs == 0) return;
+
+        fileName = args[0];
+        if (numberOfArgs == 1) return;
+
+        port = Integer.parseInt(args[1]);
+        if (numberOfArgs == 2) return;
+
+        serverAddress = args[2];
     }
 }
