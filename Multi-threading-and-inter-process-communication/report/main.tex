@@ -119,14 +119,28 @@ Our implementation is tested for multiple matrix-vector sizes on the system desc
 A test class, \texttt{TestMatrixMultiplier}, can be found under the \texttt{/test} directory.
 We both evaluated the time difference between non-threading and threading executions, and ensured the $\textbf{A} * \textbf{v}$ product results are the same in each case.
 
-\begin{figure}[tb]
+% \begin{figure}[tb]
+%   \centering
+%   \begin{subfigure}
+%     \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1.eps}
+%   \end{subfigure}
+%   \begin{subfigure}
+%     \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2.eps}
+%   \end{subfigure}
+%   \caption{Execution time for threaded matrix-vector multiplication for various numbers of threads and sizes.}
+%   \label{fig:multiplication-times-dif-n}
+% \end{figure}
+
+\begin{figure}[h]
   \centering
-  \begin{subfigure}
-    \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1.eps}
-  \end{subfigure}
-  \begin{subfigure}
-    \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2.eps}
-  \end{subfigure}
+  \subfloat[label for first figure \todo replace image and caption]{
+    \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
+    % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1}
+    }
+    \subfloat[label for second figure \todo replace image and caption]{
+      \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
+      % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
+  }
   \caption{Execution time for threaded matrix-vector multiplication for various numbers of threads and sizes.}
   \label{fig:multiplication-times-dif-n}
 \end{figure}
@@ -142,11 +156,11 @@ pecifically:
 
 \begin{itemize}
   \item For smaller matrix sizes (\( n = 512 \) and \( n = 1024 \)), there is a rapid reduction in execution time up
-  to 4 threads, after which the time stabilizes with little improvement, and even slightly increases in both cases.
+        to 4 threads, after which the time stabilizes with little improvement, and even slightly increases in both cases.
   \item For larger matrix sizes (\( n = 4096 \) and \( n = 16384 \)), a similar trend is observed.
   \item The initial drop in execution time with up to 8 threads is pronounced, but adding more threads beyond that
-  point does not yield significant time reductions. For \( n = 16384 \), the time even appears to increase slightly
-  as the thread count grows beyond 8, as well as for $n=512$ and $n=1024$.
+        point does not yield significant time reductions. For \( n = 16384 \), the time even appears to increase slightly
+        as the thread count grows beyond 8, as well as for $n=512$ and $n=1024$.
 \end{itemize}
 
 This behavior indicates that for the system under test, threading provides substantial performance gains up to a
@@ -258,7 +272,7 @@ The current implementation successfully addresses the \disease - \hospital probl
 
 A more generic version of the problem could contain multiple \disease and multiple \hospital threads running at the same time, each one of them producing a random, independent number of new infections and treatments respectively. In such a case, the Health Care System handles again all produced requests as if they were put in a single queue, where only one request modifies the critical counters at a time. \textbf{We claim that our implementation can successfully handle this generic version of the problem} with trivial changes. The only requirement for our implementation to work properly in such a scenario is that all running \disease and \hospital threads are provided with the same instance of the \texttt{HealthCareManager} class. This requirement holds, since we have implemented the class using the \textbf{Singleton} design pattern, ensuring that it can be instantiated only once and all other objects share this instance.
 
-Apart from this requirement, only few trivial changes need to be made. In particular, more \texttt{Disease} and \texttt{Hospital} instances should be created, meeting the needs of the generic problem statement. The mutual exclusion ensured by the \texttt{synchronized} character of the processing method simulates the handling of requests as if they were in a single queue. \textbf{We verify our claim by executing unit tests with multiple \disease and multiple \hospital threads running at the same time}. We run 10 test simulations with random initial configurations each. All tests are successfully passed. The tests' implementation can be found in \texttt{test/TestRaceAgainstPandemic.java} file and, in particular, in \texttt{testMultiDiseaseMultiHospitalVersion()} method. 
+Apart from this requirement, only few trivial changes need to be made. In particular, more \texttt{Disease} and \texttt{Hospital} instances should be created, meeting the needs of the generic problem statement. The mutual exclusion ensured by the \texttt{synchronized} character of the processing method simulates the handling of requests as if they were in a single queue. \textbf{We verify our claim by executing unit tests with multiple \disease and multiple \hospital threads running at the same time}. We run 10 test simulations with random initial configurations each. All tests are successfully passed. The tests' implementation can be found in \texttt{test/TestRaceAgainstPandemic.java} file and, in particular, in \texttt{testMultiDiseaseMultiHospitalVersion()} method.
 
 
 \section{Problem 3: Key-value server store}
