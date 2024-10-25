@@ -36,6 +36,7 @@ public class Server {
         this.storage = new Random().nextInt(1000) + 1;
         this.serverSocket = new ServerSocket(port);
         serverSocket.setSoTimeout(timeout);
+        this.isActive = true;
         System.out.println("Server " + serverId + " started with initial storage: " + storage);
     }
 
