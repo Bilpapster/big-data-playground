@@ -50,7 +50,7 @@ The assignment contains 4 sub-problems and is part of a series, comprising 3 pro
 In this document we focus on Assignment 1 and its 4 sub-problems. We refer to them as \emph{problems} in the rest of the document for simplicity. The source code of our solution has been made available at \texttt{\small https://github.com/ Bilpapster/big-data-playground}.
 
 \textbf{Roadmap}.
-The rest of our work is structured as follows. We devote one section for each one of the 4 problems. That means problems 1, 2, 3 and 4 are presented in sections \ref{section:problem1}, \ref{section:problem2}, \ref{section:problem3} and \ref{section:problem4} respectively. For each problem, we first provide the problem statement, as given by the assignment. Next, we thoroughly present the reasoning and/or methodology we have adopted to approach the problem and devise a solution. Wherever applicable, we also provide insights about the source code implementation we have developed. For problems 2 and 4, we complete the respective sections with a discussion about alternatives or improvements the solution could accept, in order to successfully support more complex requirements. Finally, we conclude our work in section \ref{section:conclusion}.
+The rest of our work is structured as follows. We devote one section for each one of the 4 problems. That means problems 1, 2, 3 and 4 are presented in sections \ref{section:problem1}, \ref{section:problem2}, \ref{section:problem3} and \ref{sec:problem4} respectively. For each problem, we first provide the problem statement, as given by the assignment. Next, we thoroughly present the reasoning and/or methodology we have adopted to approach the problem and devise a solution. Wherever applicable, we also provide insights about the source code implementation we have developed. For problems 2 and 4, we complete the respective sections with a discussion about alternatives or improvements the solution could accept, in order to successfully support more complex requirements. Finally, we conclude our work in section \ref{sec:conclusion}.
 
 \section{Problem 1: Concurrent Array-Vector Multiplication}
 \label{section:problem1}
@@ -133,13 +133,11 @@ We both evaluated the time difference between non-threading and threading execut
 
 \begin{figure}[h]
   \centering
-  \subfloat[label for first figure \todo replace image and caption]{
-    \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
-    % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1}
+  \subfloat[]{
+     \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1}
   }
-  \subfloat[label for second figure \todo replace image and caption]{
-    \includegraphics[width=0.48\textwidth]{figures/in-out ICU.png}
-    % \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
+  \subfloat[]{
+     \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
   }
   \caption{Execution time for threaded matrix-vector multiplication for various numbers of threads and sizes.}
   \label{fig:multiplication-times-dif-n}
@@ -367,9 +365,9 @@ We claim that with the following modifications, our solution could successfully 
 \end{itemize}
 
 \section{Problem 4: Multi-server producer-consumer interaction}
-\label{section:problem4}
+\label{sec:problem4}
 The fourth problem of the assignment concerns a more complex scenario of inter-process communication with multiple servers being active simultaneously. The assignment asks for implementation in Java programming language, leveraging TCP sockets and multi-threading.
-\subsection{Problem Statement}
+\subsection{Problem Statement}\label{subsec:problem-statement}
 Suppose that you want to develop a process system that consists of three types of processes: \textbf{consume}, \textbf{produce} and \textbf{server}. All three types of processes communicate with each other using TCP sockets. The system operation is as follows.
 
 \textbf{Server}. Each server has a non-shared integer variable \storage that depicts the quantity of products in stock, located in the specific server. The initial value of the \storage for each server is a random integer number in the range $[0, 100]$.
@@ -379,8 +377,75 @@ Suppose that you want to develop a process system that consists of three types o
 \textbf{Consumer}. Each consumer randomly connects to a server and subtracts a random value Y in the range $[10, 100]$ from \storage of this server. If the new \storage value is below 1, then the respective server sends a relevant message and the \storage value is not updated. Next, the consumer awaits for a random time period in the range $[1, 10]$ and connects to the next server, again randomly.
 
 
+\subsection{Proposed approach}\label{subsec:proposed-approach}
+
+\subsubsection{Setting}
+Our implementation is run and tested in both a Linux (Ubuntu 24.04) and a Windows 11 environment, using the Java programming language.
+We have used JDK 11.0.11 and IntelliJ IDEA Community Edition 2021.1.1.
+The code is compiled and executed in the terminal from a single entry point (i.e., \textt{main()}).
+running from the root folder of the repository as:
+\begin{verbatim}
+  cd storageProducerConsumer
+  javac Server.java Producer.java Consumer.java
+  java Server <server_count> <host_port>
+\end{verbatim}
+where:
+\begin{itemize}
+  \item \texttt{<server\_count>} is the number of servers that will start
+  \item \texttt{<host\_port>} is the port number of the first server (the rest take the next ones)
+\end{itemize}
+
+Note that the \textt{server\_count} argument is optional (default value is 5), but mandatory if
+\textt{host\_port} is specified (otherwise, its default value is 9000).
+
+\subsubsection{Implementation}
+The \texttt{Server} class is central, managing storage and handling client requests through socket connections.
+Each server has a unique ID, a designated port, and a storage limit, initially set to a random value between 1 and 1000.
+The \texttt{Server} class starts a socket to listen for client connections, with each client handled in its own
+thread through a thread pool.
+In other words, the \textit{multi-threading} requirement for client-serving is accomplished by the
+\textt{CachedThreadPool} each server has.
+
+\textbf{Key methods} in \texttt{Server} include:
+\begin{itemize}
+  \item \texttt{addToStorage} and \texttt{removeFromStorage}: These methods add or remove values from storage while ensuring values stay within bounds (1 to 1000).
+  \item \texttt{start}: This method begins listening for incoming connections.
+  \item \textt{shutdown}: If a connection timeout is reached (default 60 seconds), the server automatically shuts down.
+  \item \texttt{handleClient}: This method processes \texttt{ADD} or \texttt{REMOVE} requests from clients and sends a response indicating success or failure.
+\end{itemize}
+
+Each server’s operations on storage are thread-safe, achieved using \textbf{\textt{synchronized}} methods to prevent data
+inconsistencies when multiple producers or consumers connect simultaneously.
+This ensures that when a producer/consumer tries to add/remove a value on/from the server's storage, no other
+producer/consumer is operating on that variable, since both the whole \textt{Server} instance gets locked, until the
+operation is completed.
+
+\textbf{Consumer}
+The \texttt{Consumer} class models a client that connects to random servers and attempts to remove items from storage, simulating a consumer in the producer-consumer pattern.
+Each consumer operates for a configurable runtime (defaulting to 60 seconds) and chooses a random server to send a \texttt{REMOVE} request with a random value (between 10 and 100).
+The consumer reads the server’s response and waits a randomized interval before making the next request, thus simulating realistic, staggered consumption.
+
+\textbf{Producer}
+Similarly, the \texttt{Producer} class represents a client that attempts to add items to storage.
+Each producer thread operates with the same configurable runtime and randomly selects a server to send an \texttt{ADD} request.
+Both producers and consumers print the server's response to indicate whether their request was successful.
+
+The main method in \texttt{Server} initializes multiple server instances, each with its own thread (where another
+thread pool for clients is initialized, as mentioned above).
+Producers and consumers are also created and launched as individual threads.
+Once all servers and clients are started, the system periodically checks if all servers have shut down.
+When no active servers remain, the program terminates gracefully.
+
+\subsubsection{Technical Highlights}
+The architecture demonstrates \textit{efficient concurrency handling}, with synchronized storage operations preventing
+conflicts and socket-based communication enabling seamless interaction between servers, producers, and consumers.
+On the other hand, we comment that the random server selection approach -as the problem requires- may lead to an
+\textit{uneven load distribution} across servers, with some servers potentially handling more requests than others.
+A load-balancing mechanism could help optimize resource utilization.
+
+
 \section{Conclusion}
-\label{section:conclusion}
+\label{sec:conclusion}
 In this document we have presented our solutions and rational for solving the first assignment of the M.Sc. course on \emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.Sc Program}. The assignment comprises four problems that are closely related to multi-threading programming and inter-process communication in the Java programming language. The first problem considers a concurrent implementation of an algebraic operation. The second problem focuses on a pandemic spread. The third and the fourth problems relate to client-server and producer-consumer settings respectively. For each one of the problems we have presented the problem statement, the approach we adopted in order to devise a solution, as well as the source code implementation of our solutions. Wherever applicable, we have discussed extensions of our work, in order to successfully handle more generic variations of the problems.
 
 
