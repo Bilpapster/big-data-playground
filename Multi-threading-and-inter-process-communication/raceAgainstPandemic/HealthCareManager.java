@@ -1,24 +1,14 @@
 package raceAgainstPandemic;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import static java.lang.System.exit;
 
 public class HealthCareManager {
     // singleton design pattern
     private static HealthCareManager instance;
-
-    private HealthCareManager(int availableBeds) {
-        this.totalNumberOfBeds = availableBeds;
-        this.availableBeds = availableBeds;
-        try {
-            this.fileWriter = new FileWriter(FILE_NAME);
-            fileWriter.write("time,total_beds,in,out,treatments,infections\n");
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    } // intentionally private for compliance with the singleton design pattern
-
     private int availableBeds;
     private int totalNumberOfBeds;
     private int totalInfections = 0;
@@ -26,7 +16,21 @@ public class HealthCareManager {
     private int currentlyOutOfICU = 0;
     private final long startTimeMillis = System.currentTimeMillis();
     private FileWriter fileWriter;
-    private final String FILE_NAME = "1. Multi-threading and inter-process communication/raceAgainstPandemic/results/data.csv";
+    private final String OUTPUT_PATH = "Multi-threading-and-inter-process-communication/raceAgainstPandemic/results/";
+    private final String OUTPUT_FILE_NAME = "simulation_data.csv";
+
+    private HealthCareManager(int availableBeds) {
+        this.totalNumberOfBeds = availableBeds;
+        this.availableBeds = availableBeds;
+        try {
+            new File(OUTPUT_PATH).mkdirs();
+            this.fileWriter = new FileWriter(OUTPUT_PATH + OUTPUT_FILE_NAME);
+            fileWriter.write("time,total_beds,in,out,treatments,infections\n");
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    } // intentionally private for compliance with the singleton design pattern
 
     public static synchronized HealthCareManager getInstance(int availableBeds) {
         if (instance == null) {
@@ -102,7 +106,7 @@ public class HealthCareManager {
     private synchronized void writeSnapshotToFile() {
         long timeOffset = System.currentTimeMillis() - this.startTimeMillis;
         try {
-            this.fileWriter = new FileWriter(FILE_NAME, true);
+            this.fileWriter = new FileWriter(OUTPUT_PATH + OUTPUT_FILE_NAME, true);
             this.fileWriter.write(
                     timeOffset +
                             "," +
@@ -119,8 +123,9 @@ public class HealthCareManager {
             );
             this.fileWriter.close();
         } catch (IOException e) {
-            System.out.println("An error occurred while trying to access data file.");
+            System.out.println("An error occurred while trying to access the output data file.");
             e.printStackTrace();
+            exit(-1);
         }
 
     }
