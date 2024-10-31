@@ -1,7 +1,7 @@
 package movieAnalytics;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import util.Utilities;
 
 // command line arguments: map-reduce/movieAnalytics/input/ map-reduce/movieAnalytics/out/
 public class WordCount {
@@ -24,10 +25,24 @@ public class WordCount {
 
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(value.toString());
-            while (itr.hasMoreTokens()) {
-                word.set(itr.nextToken());
-                context.write(word, one);
+
+            String line = value.toString();
+            String[] countries = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1); // to parse correctly nested quotes with commas inside
+            for (String token : countries) {
+                if (!token.startsWith("\"") || token.length() < 3) {
+//                    System.out.println(token);
+                    context.write(new Text(token), one);
+                    continue;
+                }
+
+                token = token.substring(1, token.length() - 1); // trim leading and trailing quotation marks
+                String[] nestedTokens = token.split(",");
+                for (String nestedToken : nestedTokens) {
+                    nestedToken = nestedToken.trim();  // trim any possible leading and trailing whitespaces
+//                    System.out.print(nestedToken);
+//                    System.out.print(" and ");
+                }
+//                System.out.println();
             }
         }
     }
@@ -49,6 +64,14 @@ public class WordCount {
     }
 
     public static void main(String[] args) throws Exception {
+        // parse CLI arguments
+        String inputPath = args[0];
+        String outputPath = args[1];
+
+        // first, completely delete output folder, because if it already exists, Hadoop goes crazy
+        Utilities.deleteDirectory(outputPath);
+
+        // then, configure Hadoop
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
@@ -57,8 +80,8 @@ public class WordCount {
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, new Path(inputPath));
+        FileOutputFormat.setOutputPath(job, new Path(outputPath));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }

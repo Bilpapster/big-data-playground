@@ -8,13 +8,11 @@ import java.nio.file.Paths;
 public class Utilities {
     public static void deleteDirectory(String path) {
         if (!Files.exists(Paths.get(path))) {
-            System.out.println("The file does not exist " + path);
             return;
         }
 
         File file = new File(path);
         if (!file.isDirectory()) {
-            System.out.println("Deleting " + file);
             file.delete();
             return;
         }
@@ -22,7 +20,6 @@ public class Utilities {
         String[] childFiles = file.list();
         if (childFiles == null) {
             //Directory is empty. Proceed for deletion
-            System.out.println("Deleting empty directory " + file);
             file.delete();
             return;
         }
@@ -31,7 +28,6 @@ public class Utilities {
         //Need to delete them first
         for (String childFilePath : childFiles) {
             //recursively delete the files
-            System.out.println("Calling deleteDirectory for " + path + "/" + childFilePath);
             deleteDirectory(path + "/" + childFilePath);
         }
         file.delete();
