@@ -134,10 +134,10 @@ We both evaluated the time difference between non-threading and threading execut
 \begin{figure}[h]
   \centering
   \subfloat[]{
-     \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1}
+    \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-1}
   }
   \subfloat[]{
-     \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
+    \includegraphics[width=0.48\textwidth]{figures/multiplication-times-dif-n-2}
   }
   \caption{Execution time for threaded matrix-vector multiplication for various numbers of threads and sizes.}
   \label{fig:multiplication-times-dif-n}
@@ -382,7 +382,7 @@ Suppose that you want to develop a process system that consists of three types o
 \subsubsection{Setting}
 Our implementation is run and tested in both a Linux (Ubuntu 24.04) and a Windows 11 environment, using the Java programming language.
 We have used JDK 11.0.11 and IntelliJ IDEA Community Edition 2021.1.1.
-The code is compiled and executed in the terminal from a single entry point (i.e., \textt{main()}).
+The code is compiled and executed in the terminal from a single entry point (i.e., \texttt{main()}).
 running from the root folder of the repository as:
 \begin{verbatim}
   cd storageProducerConsumer
@@ -395,8 +395,8 @@ where:
   \item \texttt{<host\_port>} is the port number of the first server (the rest take the next ones)
 \end{itemize}
 
-Note that the \textt{server\_count} argument is optional (default value is 5), but mandatory if
-\textt{host\_port} is specified (otherwise, its default value is 9000).
+Note that the \texttt{server\_count} argument is optional (default value is 5), but mandatory if
+\texttt{host\_port} is specified (otherwise, its default value is 9000).
 
 \subsubsection{Implementation}
 The \texttt{Server} class is central, managing storage and handling client requests through socket connections.
@@ -404,20 +404,20 @@ Each server has a unique ID, a designated port, and a storage limit, initially s
 The \texttt{Server} class starts a socket to listen for client connections, with each client handled in its own
 thread through a thread pool.
 In other words, the \textit{multi-threading} requirement for client-serving is accomplished by the
-\textt{CachedThreadPool} each server has.
+\texttt{CachedThreadPool} each server has.
 
 \textbf{Key methods} in \texttt{Server} include:
 \begin{itemize}
   \item \texttt{addToStorage} and \texttt{removeFromStorage}: These methods add or remove values from storage while ensuring values stay within bounds (1 to 1000).
   \item \texttt{start}: This method begins listening for incoming connections.
-  \item \textt{shutdown}: If a connection timeout is reached (default 60 seconds), the server automatically shuts down.
+  \item \texttt{shutdown}: If a connection timeout is reached (default 60 seconds), the server automatically shuts down.
   \item \texttt{handleClient}: This method processes \texttt{ADD} or \texttt{REMOVE} requests from clients and sends a response indicating success or failure.
 \end{itemize}
 
-Each server’s operations on storage are thread-safe, achieved using \textbf{\textt{synchronized}} methods to prevent data
+Each server’s operations on storage are thread-safe, achieved using \textbf{\texttt{synchronized}} methods to prevent data
 inconsistencies when multiple producers or consumers connect simultaneously.
 This ensures that when a producer/consumer tries to add/remove a value on/from the server's storage, no other
-producer/consumer is operating on that variable, since both the whole \textt{Server} instance gets locked, until the
+producer/consumer is operating on that variable, since both the whole \texttt{Server} instance gets locked, until the
 operation is completed.
 
 \textbf{Consumer}
