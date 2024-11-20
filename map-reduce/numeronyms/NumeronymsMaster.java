@@ -17,6 +17,8 @@ public class NumeronymsMaster {
         // parse CLI arguments
         String inputPath = args[0];
         String outputPath = args[1];
+
+        // Delete previous output if exists
         Utilities.deleteDirectory(outputPath);
         
         int k = Integer.parseInt(args[2]);
