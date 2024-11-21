@@ -14,7 +14,6 @@ import java.util.*;
 public class NumeronymMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
     private final static IntWritable one = new IntWritable(1);
     private int minLength;
-    private Text word = new Text();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
