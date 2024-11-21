@@ -19,11 +19,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-// command line arguments: map-reduce/probabilisticGraph/input/ map-reduce/probabilisticGraph/out/
+// command line arguments: map-reduce/probabilisticGraph/input/ map-reduce/probabilisticGraph/out/ <threshold:Double>
 public class GraphMaster {
 
     public static void main(String[] args) throws Exception {
-        // parse CLI arguments
+        // Parse CLI arguments
         String inputPath = args[0];
         String outputPath = args[1];
 
@@ -92,7 +92,6 @@ public class GraphMaster {
         double mean = 0;
         int count = 0;
 
-        // Access the file system and list the files in the directory
         Configuration conf = new Configuration();
         Path phase2Path = new Path(outputPath + "phase2/");
         FileSystem fs = FileSystem.get(conf);
@@ -101,7 +100,6 @@ public class GraphMaster {
         for (Path file : Utilities.getFilesInDirectory(fs, phase2Path)) {
             if (!fs.isFile(file)) continue; // Skip non-file entries
 
-            // Open each file and parse its contents
             try (BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(file)))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -119,7 +117,7 @@ public class GraphMaster {
             throw new IOException("Count is zero, mean calculation not possible.");
         }
 
-        mean /= count; // Calculate the mean
+        mean /= count;
         return mean;
     }
 
