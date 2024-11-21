@@ -29,9 +29,9 @@ public class GraphReducer extends Reducer<Text, DoubleWritable, Text, DoubleWrit
         context.write(key, new DoubleWritable(sum));
     }
 
-//    @Override
-//    protected void cleanup(Context context) throws IOException, InterruptedException {
-//        double average = totalSum / totalCount;
-//        context.getConfiguration().setStrings("global.average", Double.toString(average));
-//    }
+    @Override
+    protected void cleanup(Context context) {
+        double average = totalSum / totalCount;
+        context.getConfiguration().set("probGraph.avg", Double.toString(average));
+    }
 }
