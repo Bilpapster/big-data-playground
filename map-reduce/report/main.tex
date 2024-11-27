@@ -1,0 +1,373 @@
+\documentclass[acmlarge]{acmart}
+
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+  \settopmatter{printacmref=false}
+
+\renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\textit{#1}}
+\usepackage{xcolor}
+\usepackage{multicol}
+\usepackage{geometry}
+\newcommand{\todo}{{\color{red}\textbf{TODO} }}
+\newcommand{\disease}{{\small \texttt{DISEASE}} }
+\newcommand{\hospital}{{\small \texttt{HOSPITAL}} }
+\newcommand{\storage}{{\small \texttt{STORAGE}} }
+
+% christos 1, 4
+% vasilis 2, 3
+
+\usepackage{amsmath}
+\usepackage{subfig}
+
+\begin{document}
+
+\title{Multi-Threading Programming and Inter-Process Communication}
+\subtitle{M.Sc. course on ``Technologies for Big Data Analysis'' - Assignment 2}
+
+\author{Christos Balaktsis (506)}
+\email{balaktsis@csd.auth.gr}
+\author{Vasileios Papastergios (505)}
+\email{papster@csd.auth.gr}
+\affiliation{
+  \institution{Aristotle University}
+  \city{Thessaloniki}
+  \country{Greece}
+}
+
+\renewcommand{\shortauthors}{C. Balaktsis and V. Papastergios}
+\maketitle
+
+\section{Introduction}
+
+The current document is a technical report for the second programming assignment in the M.Sc. course on
+\emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.Sc Program}\footnote{https://dws.csd.auth.gr/} of the Aristotle University of Thessaloniki, Greece. The course is taught by Professor Apostolos Papadopoulos~\footnote{https://datalab-old.csd.auth.gr/$\sim$apostol/}. The authors attended the course during their first year of Ph.D. studies at the Institution.
+
+The assignment contains 4 sub-problems and is part of a series, comprising 3 programming assignments on the following topics:
+\begin{description}
+  \item[Assignment 1] Multi-threading Programming and Inter-Process Communication
+  \item[Assignment 2] The Map-Reduce Programming Paradigm
+  \item[Assignment 3] Big Data Analytics with Scala and Apache Spark
+\end{description}
+In this document we focus on Assignment 1 and its 4 sub-problems.
+We refer to them as \emph{problems} in the rest of the document for simplicity.
+The source code of our solution has been made available at \texttt{\small https://github.com/Bilpapster/big-data-playground}.
+
+\textbf{Roadmap}.
+The rest of our work is structured as follows.
+We devote one section for each one of the 4 problems.
+That means problems 1, 2, 3 and 4 are presented in sections \ref{sec:problem1}, \ref{sec:problem2}, \ref{sec:problem3} and \ref{sec:problem4} respectively.
+For each problem, we first provide the problem statement, as given by the assignment.
+Next, we thoroughly present the reasoning and/or methodology we have adopted to approach the problem and devise a solution.
+Wherever applicable, we also provide insights about the source code implementation we have developed.
+Finally, we conclude our work in section \ref{sec:conclusion}.
+The appendix includes the evaluation results for any issues that necessitated them.
+
+\section{Problem 1: Numeronyms}
+\label{sec:problem1}
+We discuss here the first problem of the assignment.
+The main target of the assignment is to get acquainted with the MapReduce programming model in Hadoop framework in
+Java programming language.
+This is a WordCount problem's variation.
+
+\subsection{Problem Statement}
+Implement a \textbf{MapReduce} program, a variation of the \textbf{word-count} problem, to generate and count
+``numeronyms.'' Numeronyms correspond to words as shown below:
+
+\begin{itemize}
+  \item s5n – shorten
+  \item h7k – hyperlink
+  \item l10n – localization
+  \item i18n – internationalization
+\end{itemize}
+
+A numeronym of a word is defined as an alphanumeric string formed by taking the first and last character of the word and
+inserting between them the count of characters between the first and the last.
+More specifically, the program should process words with a length of 3 characters or more, generate numeronyms, and then
+output the frequency of each numeronym.
+
+The program should ignore:
+\begin{itemize}
+  \item words shorter than 3 characters
+  \item punctuation marks
+  \item uppercase/lowercase differences, i.e., it should be \textit{case-insensitive}
+\end{itemize}
+
+Additionally, a parameter $k$ will be given, representing the minimum number of occurrences of a numeronym that we are
+interested in.
+The program output should be a list of numeronyms and the frequency of each numeronym that is greater than or equal to
+the parameter $k$ specified by the user.
+
+\subsection{Proposed approach}
+\subsubsection{Setting}
+Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
+We have used the Java Development Kit (JDK) version 11.0.11.
+The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using Maven as the build tool.
+
+The project’s dependencies, including Hadoop libraries, are defined in the \texttt{pom.xml} file located in the root of
+the repository.
+The project is compiled and executed directly from IntelliJ IDEA.
+
+To run the project, open the \texttt{NumeronymsMaster} class in IntelliJ IDEA, and execute the main method.
+You will need to specify the following command-line arguments:
+
+\begin{itemize}
+  \item \texttt{<input\_path>} specifies the directory containing the input text files, located at
+  \texttt{map-reduce/ numeronyms /input}.
+  \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be created in the \texttt{out} folder.
+  \item \texttt{<k>} is the minimum frequency threshold for numeronyms to be included in the results.
+\end{itemize}
+
+IntelliJ IDEA will handle the compilation and execution automatically when the main method is run.
+Make sure to configure the input and output paths as required for your specific run.
+
+Note that the command-line arguments must follow the specified order and format.
+If any of the arguments are missing or invalid, the program will terminate with an appropriate error message.
+
+\subsubsection{Implementation}
+The proposed approach leverages the MapReduce programming model to compute numeronyms from a given input dataset.
+A numeronym is a concise representation of a word, typically formed by retaining the first and last letters while
+replacing the intervening characters with their count.
+This section outlines the methodology implemented across three key components: the driver class, the mapper, and the
+reducer.
+This methodology supports flexible configuration through command-line arguments, enabling users to specify the
+threshold $k$ and the minimum word length for numeronym generation.
+The use of the MapReduce paradigm ensures scalability and parallel processing for large datasets, making the approach
+well-suited for distributed systems.
+
+The driver class, \texttt{NumeronymsMaster}, orchestrates the overall MapReduce job.
+It takes command-line arguments for the input and output directories as well as a threshold parameter $k$, which
+determines the minimum frequency for numeronyms to be included in the final output.
+The following steps are executed:
+\begin{itemize}
+  \item Input and output paths are parsed, and any pre-existing output directory is deleted using the
+        \texttt{Utilities.deleteDirectory} method.
+  \item A Hadoop configuration object is initialized with two parameters:
+  \begin{itemize}
+    \item \texttt{numeronyms.k}: The threshold $k$.
+    \item \texttt{numeronyms.l}: The minimum word length (default value is 3) required for numeronym generation.
+  \end{itemize}
+  \item The job is configured to use the \texttt{NumeronymMapper} and \texttt{NumeronymReducer} classes, with input and
+        output formats set to \texttt{TextInputFormat} and \texttt{TextOutputFormat}, respectively.
+  \item Finally, the job waits for completion before terminating.
+\end{itemize}
+
+The \texttt{NumeronymMapper} class is responsible for processing each line of the input text file and emitting numeronym
+-frequency pairs.
+The following steps are performed:
+\begin{itemize}
+  \item During setup, the minimum word length (\texttt{numeronyms.l}) is retrieved from the configuration.
+  \item Each input line is tokenized into individual words, and non-alphabetic characters are removed from each token.
+  \item For valid words (those with lengths greater than or equal to the specified minimum), a numeronym is constructed
+        by concatenating the first character, the number of intervening characters, and the last character.
+  \item A key-value pair is emitted, where the key is the numeronym and the value is a count of one.
+\end{itemize}
+
+The \texttt{NumeronymReducer} class aggregates the frequency counts for each numeronym and filters out those below the
+specified threshold $k$.
+The process includes:
+\begin{itemize}
+  \item Retrieving the threshold value (\texttt{numeronyms.k}) from the configuration during the setup phase.
+  \item Summing the values for each numeronym key received from the mapper.
+  \item Emitting numeronyms that meet or exceed the threshold $k$ along with their corresponding frequencies.
+\end{itemize}
+
+\subsubsection{Evaluation}
+The experiments were executed using the dataset `SherlockHolmes.txt` with a parameter setting of \( k = 10 \).
+This configuration was chosen to evaluate the performance and the behavior of the system under moderate conditions.
+The dataset, containing a series of textual records, was processed to analyze various patterns and results.
+
+To provide a comprehensive overview, the results of the experiment, including the detailed values derived from the
+dataset, are presented in Appendix \ref{sec:data1} in a 2-column format.
+
+
+\section{Problem 4: Probabilistic graph}
+\label{sec:problem4}
+We discuss here the fourth problem of the assignment.
+The main target of the assignment is to get acquainted with performing various MapReduce phases on a pipeline frame.
+
+\subsection{Problem Statement}
+We are given an input file in text format where each line contains a connection between two vertices of a network and a
+probability value.
+For each edge \( e \), there is a probability value \( p(e) \) which indicates the probability that the two vertices are
+connected by the edge.
+Obviously, the values of \( p(e) \) range between 0 and 1.
+The values in each line are separated by a space.
+Consider the network shown in the previous figure.
+The edge connecting vertices 4 and 5 has a probability of
+0.8, the edge connecting vertices 2 and 3 has a probability of 0.2, etc.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.25\linewidth]{figures/graph}
+\end{figure}
+
+The file corresponding to this graph would be:
+
+\[
+  1 \ 2 \ 0.6, \\
+  1 \ 3 \ 0.9, \\
+  2 \ 3 \ 0.2, \\
+  3 \ 4 \ 0.75, \\
+  2 \ 5 \ 0.2, \\
+  4 \ 5 \ 0.8,
+\]
+
+The edges are generally stored in random order in the file, so we cannot assume they have a specific arrangement.
+
+The following tasks are requested:
+
+\begin{enumerate}
+  \item Write a Java program that computes the average degree for all the vertices.
+  \item The average degree is defined as the sum of the probabilities of the edges that fall on a vertex.
+  \item For example, in the previous diagram, the average degree of vertex 3 is \( 0.9 + 0.2 + 0.75 = 1.85 \).
+  \item Before performing this calculation, you should ignore all edges with a probability less than a threshold \( T \)
+        , which should be passed as a parameter to the main function.
+  \item Modify the code from task 1 so that, at the end, only the vertices with an average degree greater than the
+        average of the degrees of all the vertices are displayed in the output.
+
+\end{enumerate}
+
+\subsection{Proposed approach}
+\subsubsection{Setting}
+Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
+We have used the Java Development Kit (JDK) version 11.0.11.
+The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using Maven as the build tool.
+
+The project’s dependencies, including Hadoop libraries, are defined in the \texttt{pom.xml} file located in the root of
+the repository.
+The project is compiled and executed directly from IntelliJ IDEA.
+
+To run the project, open the \texttt{GraphMaster} class in IntelliJ IDEA, and execute the main method.
+You will need to specify the following command-line arguments:
+
+\begin{itemize}
+  \item \texttt{<input\_path>} specifies the directory containing the input text files, located at
+  \texttt{map-reduce/ probabilisticGraph /input}.
+  \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be
+        created in the \texttt{out} folder.
+  \item \texttt{<T>} is the minimum edge-degree threshold for vertices to be included in the results.
+\end{itemize}
+
+IntelliJ IDEA will handle the compilation and execution automatically when the main method is run.
+Make sure to configure the input and output paths as required for your specific run.
+
+Note that the command-line arguments must follow the specified order and format.
+If any of the arguments are missing or invalid, the program will terminate with an appropriate error message.
+
+\subsubsection{Implementation}
+The problem at hand involves processing a probabilistic graph, where each edge connects two vertices with a probability
+value.
+The task is to compute the average degree for each vertex, considering only edges whose probability exceeds a given
+threshold \( T \).
+The methodology proposed here utilizes a distributed MapReduce framework, implemented using Hadoop, to efficiently
+process and analyze large-scale graph data.
+The approach is divided into three main phases, each handled by separate MapReduce jobs, with intermediate results
+passed between the phases.
+
+The \texttt{GraphMaster} class serves as the orchestrator of the entire MapReduce process.
+It manages the execution of the three phases, invoking the appropriate MapReduce jobs in sequence.
+The main steps executed by \texttt{GraphMaster} are:
+
+\begin{enumerate}
+  \item It retrieves the command-line arguments, including the input and output directories as well as the threshold
+        value \( T \), which determines which edges to consider in the graph.
+  \item It initiates the first MapReduce job to compute the degree of each vertex in the graph.
+        The input consists of edge data, and the output is a summation of edge probabilities for each vertex.
+  \item After the first job completes, the \texttt{GraphMaster} starts the second MapReduce job to calculate the mean
+        degree of the graph, using the results from the first job.
+  \item Once the mean degree is computed, \texttt{GraphMaster} starts the third MapReduce job, which filters out the
+        vertices with degrees lower than the mean degree.
+  \item It cleans up intermediate directories after each phase and moves the final output to the desired location.
+\end{enumerate}
+
+\texttt{GraphMaster} coordinates these steps by configuring and executing the MapReduce jobs, ensuring that each phase
+depends on the results of the previous one. \\
+
+The entire process consists of three MapReduce jobs, executed sequentially:
+
+\begin{enumerate}
+  \item \textbf{Phase 1:} The first job computes the degree of each vertex by summing the probabilities of the edges
+        connected to it.
+        It produces intermediate results for each vertex.
+  \item \textbf{Phase 2:} The second job calculates the mean degree by summing the degrees from the first phase and
+        dividing by the total number of vertices.
+  \item \textbf{Phase 3:} The third job filters out the vertices with a degree lower than the mean degree and produces
+        the final filtered result.
+\end{enumerate}
+
+After each job completes, intermediate data is written to disk and passed as input to the subsequent job.
+The final output consists of the vertices whose degree exceeds or equals the mean degree. \\
+
+\textbf{Phase 1: Calculating Vertex Degree}
+The first MapReduce job is responsible for calculating the degree of each vertex in the graph, where the degree is
+defined as the sum of the probabilities of the edges connected to that vertex.
+The degree of each vertex is computed by the \texttt{GraphMapper} and \texttt{GraphReducer} classes.
+
+The \texttt{GraphMapper} class reads each edge from the input data, which consists of lines containing two vertices
+and the associated probability value.
+It splits each line into two components (the two vertices), and for each vertex, it emits the corresponding probability
+value as the output.
+The mapper also checks if the probability value exceeds the threshold \( T \), which is provided as a configuration
+parameter.
+If the probability is greater than or equal to \( T \), it emits the vertex along with the corresponding probability.
+
+The \texttt{GraphReducer} class receives the vertex and associated probability values emitted by the mapper.
+For each vertex, it sums up all the probabilities of the edges connected to that vertex, and emits the pair as output.
+
+\textbf{Phase 2: Calculating the Mean Degree}
+The second phase of the approach calculates the mean degree of all vertices.
+This is done by summing the degree values from the previous phase and dividing by the total number of vertices.
+
+The \texttt{MeanMapper} class receives the degree values from the output of the first MapReduce job.
+It emits two key-value pairs for each input line: a count of the number of vertices and the sum of the degree values.
+These are emitted with fixed keys (\texttt{"count"} and \texttt{"sum"}) so that they can be aggregated in the reducer.
+
+The \texttt{MeanReducer} class processes the count and sum values emitted by the mapper.
+It calculates the total sum and count of vertices and then writes these values as output.
+The mean degree is calculated by dividing the sum by the count, and the result is stored for use in the next phase.
+
+\textbf{Phase 3: Filtering Vertices by Mean Degree}
+In the third phase, the vertices whose degree is greater than or equal to the mean degree calculated in Phase 2 are
+selected.
+This phase uses the results from Phase 1 and Phase 2, applying the filtering criteria to retain only those vertices with
+a degree greater than or equal to the mean.
+
+The \texttt{FilterMapper} class takes the degree values emitted by the first reducer and writes them as key-value pairs.
+Each key is a vertex, and the value is the degree of that vertex.
+The mapper does not perform any filtering; instead, it simply passes the values along to the reducer.
+
+The \texttt{FilterReducer} class filters out the vertices whose degree is less than the mean degree.
+It retrieves the mean degree from the configuration, and for each vertex, it compares the degree value to the mean.
+If the degree is greater than or equal to the mean, it emits the vertex along with its degree.
+This final output contains only the vertices that satisfy the filtering criteria.
+
+\subsubsection{Evaluation}
+The experiments were executed using the dataset `collins.txt` with a parameter setting of \( T = 0.8 \).
+
+To provide a comprehensive overview, the results of the experiment, including the detailed values derived from the
+dataset, are presented in Appendix \ref{sec:data4} in a 2-column format.
+
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+TODO: In this document we have presented our solutions and rational for solving the first assignment of the M.Sc.
+course
+on \emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.Sc. Program}.
+
+\appendix
+\section{Appendix}
+\subsection{Problem 1}
+\label{sec:data1}
+\input{appendix1}
+
+\subsection{Problem 4}
+\label{sec:data4}
+\input{appendix4}
+
+
+\end{document}
+\endinput
+

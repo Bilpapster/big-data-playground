@@ -8,14 +8,6 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 
 public class GraphReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
-    private int totalCount;
-    private double totalSum;
-
-    @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-        totalCount = 0;
-        totalSum = 0;
-    }
 
     @Override
     public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
@@ -23,15 +15,7 @@ public class GraphReducer extends Reducer<Text, DoubleWritable, Text, DoubleWrit
         for (DoubleWritable value : values) {
             sum += value.get();
         }
-        totalSum += sum;
-        totalCount++;
-
         context.write(key, new DoubleWritable(sum));
     }
 
-    @Override
-    protected void cleanup(Context context) {
-        double average = totalSum / totalCount;
-        context.getConfiguration().set("probGraph.avg", Double.toString(average));
-    }
 }
