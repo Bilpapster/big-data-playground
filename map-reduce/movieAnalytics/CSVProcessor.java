@@ -110,7 +110,7 @@ public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, 
     @Override
     public void map(Object key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
 
-        String[] usefulFields = extractUsefulFields(splitCSVLine(value), 22);
+        String[] usefulFields = extractUsefulFields(splitCSVLine(value), 9);
         if (usefulFields.length == 0) {
             return;
         }
@@ -134,11 +134,11 @@ public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, 
             return new String[0];
         }
         return new String[]{
-                tokens[6], // duration
-                tokens[7], // country or countries
-                tokens[5], // genre
-                tokens[3], // year
-                tokens[3]  // score
+                tokens[3].split(" ")[0],  // duration
+                tokens[8],                      // country or countries
+                tokens[4],                      // genre
+                tokens[2],                      // year
+                tokens[6]                       // score
         };
     }
 }
