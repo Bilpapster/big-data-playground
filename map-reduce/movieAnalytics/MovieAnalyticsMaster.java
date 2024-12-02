@@ -14,22 +14,31 @@ public class MovieAnalyticsMaster extends Configured implements Tool {
 
     public int run(String[] args) throws Exception {
         //creating a JobConf object and assigning a job name for identification purposes
-        JobConf conf = new JobConf(getConf(), MovieAnalyticsMaster.class);
-        conf.setJobName("MovieAnalyticsMaster");
+        JobConf durationPerCountryConf = new JobConf(getConf(), MovieAnalyticsMaster.class);
+        durationPerCountryConf.setJobName("DurationPerCountry");
 
         //Setting configuration object with the Data Type of output Key and Value
-        conf.setOutputKeyClass(Text.class);
-        conf.setOutputValueClass(IntWritable.class);
+        durationPerCountryConf.setOutputKeyClass(Text.class);
+        durationPerCountryConf.setOutputValueClass(IntWritable.class);
 
         //Providing the mapper and reducer class names
-        conf.setMapperClass(CSVProcessor.class);
-        conf.setReducerClass(AnalyticsEngine.class);
+        durationPerCountryConf.setMapperClass(DurationCountryCSVProcessor.class);
+        durationPerCountryConf.setReducerClass(AnalyticsEngine.class);
 
         //the hdfs input and output directory to be fetched from the command line
-        FileInputFormat.addInputPath(conf, new Path(inputPath));
-        FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+        FileInputFormat.addInputPath(durationPerCountryConf, new Path(inputPath));
+        FileOutputFormat.setOutputPath(durationPerCountryConf, new Path(outputPath + "/DurationPerCountry/"));
+        JobClient.runJob(durationPerCountryConf);
 
-        JobClient.runJob(conf);
+        JobConf yearGenreConf = new JobConf(getConf(), MovieAnalyticsMaster.class);
+        yearGenreConf.setJobName("MoviesPerYearAndGenre");
+        yearGenreConf.setOutputKeyClass(Text.class);
+        yearGenreConf.setOutputValueClass(IntWritable.class);
+        yearGenreConf.setMapperClass(GenreYearCSVProcessor.class);
+        yearGenreConf.setReducerClass(AnalyticsEngine.class);
+        FileInputFormat.addInputPath(yearGenreConf, new Path(inputPath));
+        FileOutputFormat.setOutputPath(yearGenreConf, new Path(outputPath + "/MoviesPerYearAndGenre/"));
+        JobClient.runJob(yearGenreConf );
         return 0;
     }
 

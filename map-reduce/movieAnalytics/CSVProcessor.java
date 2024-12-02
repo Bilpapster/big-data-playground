@@ -9,11 +9,11 @@ import org.apache.hadoop.mapred.Reporter;
 
 import java.io.IOException;
 
-public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, Text, IntWritable> {
+public abstract class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, Text, IntWritable> {
 
     private final static IntWritable one = new IntWritable(1);
 
-    private static class Movie {
+    static class Movie {
         private final int ILLEGAL_VALUE = -1;
 
         private int duration = ILLEGAL_VALUE;
@@ -72,11 +72,6 @@ public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, 
             return this;
         }
 
-        public void sendToCollector(OutputCollector<Text, IntWritable> collector) throws IOException {
-            this.sendCountriesDurationToCollector(collector);
-            this.sendGenreYearToCollector(collector);
-        }
-
         private String[] extractNestedFieldsWithQuotes(String stringWithQuotes) {
             String stringWithoutQuotes = stringWithQuotes.substring(1, stringWithQuotes.length() - 1); // remove quotes
             String[] nestedFields = stringWithoutQuotes.split(",");
@@ -86,7 +81,7 @@ public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, 
             return nestedFields;
         }
 
-        private void sendCountriesDurationToCollector(OutputCollector<Text, IntWritable> collector) throws IOException {
+        public void sendCountriesDurationToCollector(OutputCollector<Text, IntWritable> collector) throws IOException {
             if (this.involvedCountries == null || this.duration == ILLEGAL_VALUE) {
                 return;
             }
@@ -96,13 +91,13 @@ public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, 
             }
         }
 
-        private void sendGenreYearToCollector(OutputCollector<Text, IntWritable> collector) throws IOException {
-            if (this.genre == null || this.year == ILLEGAL_VALUE || this.score < 8) {
+        public void sendGenreYearToCollector(OutputCollector<Text, IntWritable> collector) throws IOException {
+            if (this.genre == null || this.year == ILLEGAL_VALUE || this.score <= 8) {
                 return;
             }
 
             for (String individualGenre : this.genre) {
-                collector.collect(new Text(individualGenre + "_" + this.year), new IntWritable(1));
+                collector.collect(new Text(this.year + "_" + individualGenre), new IntWritable(1));
             }
         }
     }
@@ -114,13 +109,17 @@ public class CSVProcessor extends MapReduceBase implements Mapper<Object, Text, 
         if (usefulFields.length == 0) {
             return;
         }
-        new Movie().withDuration(usefulFields[0])
+        this.sendMovieToCollector(
+                new Movie().withDuration(usefulFields[0])
                 .withInvolvedCountries(usefulFields[1])
                 .withGenre(usefulFields[2])
                 .withYear(usefulFields[3])
-                .withScore(usefulFields[4])
-                .sendToCollector(output);
+                .withScore(usefulFields[4]),
+                output
+        );
     }
+
+    public abstract void sendMovieToCollector(Movie movie, OutputCollector<Text, IntWritable> collector) throws IOException;
 
     private String[] splitCSVLine(Text value) {
         String line = value.toString();
