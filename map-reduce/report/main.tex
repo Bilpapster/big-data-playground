@@ -1,6 +1,7 @@
 \documentclass[acmlarge]{acmart}
 
 
+
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
     Bib\TeX}}}
@@ -20,6 +21,11 @@
 
 \usepackage{amsmath}
 \usepackage{subfig}
+
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocodex}
+\newcommand{\algorithmautorefname}{Algorithm}
 
 \begin{document}
 
@@ -57,7 +63,7 @@ The source code of our solution has been made available at the following public 
 \textbf{Roadmap}.
 The rest of our work is structured as follows.
 We devote one section to each one of the 4 problems.
-That means problems 1, 2, 3 and 4 are presented in sections \ref{sec:problem1}, \ref{sec:problem2}, \ref{sec:problem3} and \ref{sec:problem4} respectively.
+That means problems 1, 2, 3 and 4 are presented in~\autoref{sec:problem1},~\autoref{sec:problem2},~\autoref{sec:problem3} and~\autoref{sec:problem4} respectively.
 For each problem, we first provide the problem statement, as given by the assignment.
 Next, we thoroughly present the reasoning and/or methodology we have adopted to approach the problem and devise a solution.
 Wherever applicable, we also provide insights about the source code implementation we have developed.
@@ -242,6 +248,63 @@ The proposed approach leverages the MapReduce programming paradigm to compute th
 
 \subsubsection{Evaluation} Our solution is tested using the provided IMDB dataset, namely \texttt{movies.csv}. We list the execution results in~\autoref{sec:data2}.
 
+\section{Problem 3: DNA Sequence Patterns}
+\label{sec:problem3}
+The third problem focuses on mining unstructured data, namely DNA sequences, encoded in text format.
+
+
+\subsection{Problem Statement}
+A DNA sequence consists of four distinct symbols, namely A, G, C, and T. For instance, the following lines represent a part of the DNA sequence of the E. Coli bacterium~\footnote{\href{https://en.wikipedia.org/wiki/Pathogenic_Escherichia_coli}{https://en.wikipedia.org/wiki/Pathogenic\_Escherichia\_coli}}:
+
+\begin{verbatim}
+AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC
+TTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGGTCACTAAATACTTTAACCAA
+TATAGGCATAGCGCACAGACAGATAAAAATTACAGAGTACACAACATCCATGAAACGCATTAGCACCACC
+ATTACCACCACCATCACCATTACCACAGGTAACGGTGCGGGCTGACGCGTACAGGAAACACAGAAAAAAG
+\end{verbatim}
+
+Implement a \textbf{MapReduce} program that computes the frequency (i.e., number of occurrences) of all subsequences of lengths 2, 3, and 4 that are present in the input DNA sequence. Note that the processing of each line should be independent of all other lines. Use the file \texttt{ecoli.txt} to test your solution.
+
+\subsection{Proposed approach}
+\subsubsection{Setting}
+Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
+We have used the Java Development Kit (JDK) version 11.0.11.
+The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using Maven as the build tool.
+
+The project’s dependencies, including Hadoop libraries, are defined in the \texttt{pom.xml} file located in the root of
+the repository.
+The project is compiled and executed directly from IntelliJ IDEA.
+To run the project, open the \texttt{DNASequenceAnalyticsMaster} class in IntelliJ IDEA, and execute the main method.
+You will need to specify the following command-line arguments:
+
+\begin{itemize}
+  \item \texttt{<input\_path>} specifies the directory containing the input text files, located at \texttt{map-reduce/ \\ dnaSequencePatterns/input}.
+  \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be created in the \texttt{out} folder.
+\end{itemize}
+
+IntelliJ IDEA will handle the compilation and execution automatically when the main method is run. Make sure to configure the input and output paths as required for your specific run. Note that the command-line arguments must follow the specified order and format. If any of the arguments are missing or invalid, the program will terminate with an appropriate error message.
+
+\subsubsection{Implementation} \autoref{algo:subsequences} summarizes the most substantial part of our implementation, namely the logic that is implemented inside the mappers of our solution. At every execution of the map function, a DNA sequence line is given as input to the mapper. The latter is responsible for populating all possible subsequences of length 2, 3 and 4. We employ a sliding window that is nested inside a for-loop defining the subsequence length. The source code implementation of~\autoref{algo:subsequences} can be found in the \texttt{DNASequenceProcessor.java} file.
+
+\begin{algorithm}[!tb]
+  \caption{Populating DNA subsequences}
+  \label{algo:subsequences}
+  \begin{algorithmic}[1]
+    \LComment{Input: a DNA sequence $line$ (variable line)}
+    \For{$length \in \{2, 3, 4\}$}
+    \State Create a sliding window $window$ of length $length$.
+    \State Place left end of $window$ at the start of $line$.
+    \While{right end of $window$ has not exceeded $line$}
+    \State $subsequence \gets$ contents of $window$
+    \State Yield $(subsequence, 1)$ key-value pair.
+    \State Slide window to the right by $1$.
+    \EndWhile
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Evaluation} Our solution is tested using the provided DNA sequence, namely \texttt{ecoli.txt}. We list the execution results in~\autoref{sec:data3}.
+
 \section{Problem 4: Probabilistic graph}
 \label{sec:problem4}
 We discuss here the fourth problem of the assignment.
@@ -425,6 +488,10 @@ on \emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.Sc. Pro
 \section{Problem 2}
 \label{sec:data2}
 \input{appendix2}
+
+\section{Problem 3}
+\label{sec:data3}
+\input{appendix3}
 
 \subsection{Problem 4}
 \label{sec:data4}
