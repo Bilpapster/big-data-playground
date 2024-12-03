@@ -23,7 +23,7 @@
 
 \begin{document}
 
-\title{Multi-Threading Programming and Inter-Process Communication}
+\title{The Map-Reduce Programming Paradigm}
 \subtitle{M.Sc. course on ``Technologies for Big Data Analysis'' - Assignment 2}
 
 \author{Christos Balaktsis (506)}
@@ -50,18 +50,18 @@ The assignment contains 4 sub-problems and is part of a series, comprising 3 pro
   \item[Assignment 2] The Map-Reduce Programming Paradigm
   \item[Assignment 3] Big Data Analytics with Scala and Apache Spark
 \end{description}
-In this document we focus on Assignment 1 and its 4 sub-problems.
+In this document we focus on Assignment 2 and its 4 sub-problems.
 We refer to them as \emph{problems} in the rest of the document for simplicity.
-The source code of our solution has been made available at \texttt{\small https://github.com/Bilpapster/big-data-playground}.
+The source code of our solution has been made available at the following public repository in the GitHub platform: \href{https://github.com/Bilpapster/big-data-playground}{\texttt{\small https://github.com/Bilpapster/big-data-playground}}.
 
 \textbf{Roadmap}.
 The rest of our work is structured as follows.
-We devote one section for each one of the 4 problems.
+We devote one section to each one of the 4 problems.
 That means problems 1, 2, 3 and 4 are presented in sections \ref{sec:problem1}, \ref{sec:problem2}, \ref{sec:problem3} and \ref{sec:problem4} respectively.
 For each problem, we first provide the problem statement, as given by the assignment.
 Next, we thoroughly present the reasoning and/or methodology we have adopted to approach the problem and devise a solution.
 Wherever applicable, we also provide insights about the source code implementation we have developed.
-Finally, we conclude our work in section \ref{sec:conclusion}.
+Finally, we conclude our work in~\autoref{sec:conclusion}.
 The appendix includes the evaluation results for any issues that necessitated them.
 
 \section{Problem 1: Numeronyms}
@@ -73,7 +73,7 @@ This is a WordCount problem's variation.
 
 \subsection{Problem Statement}
 Implement a \textbf{MapReduce} program, a variation of the \textbf{word-count} problem, to generate and count
-``numeronyms.'' Numeronyms correspond to words as shown below:
+``numeronyms''. Numeronyms correspond to words as shown below:
 
 \begin{itemize}
   \item s5n – shorten
@@ -114,7 +114,7 @@ You will need to specify the following command-line arguments:
 
 \begin{itemize}
   \item \texttt{<input\_path>} specifies the directory containing the input text files, located at
-  \texttt{map-reduce/ numeronyms /input}.
+        \texttt{map-reduce/ numeronyms /input}.
   \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be created in the \texttt{out} folder.
   \item \texttt{<k>} is the minimum frequency threshold for numeronyms to be included in the results.
 \end{itemize}
@@ -144,10 +144,10 @@ The following steps are executed:
   \item Input and output paths are parsed, and any pre-existing output directory is deleted using the
         \texttt{Utilities.deleteDirectory} method.
   \item A Hadoop configuration object is initialized with two parameters:
-  \begin{itemize}
-    \item \texttt{numeronyms.k}: The threshold $k$.
-    \item \texttt{numeronyms.l}: The minimum word length (default value is 3) required for numeronym generation.
-  \end{itemize}
+        \begin{itemize}
+          \item \texttt{numeronyms.k}: The threshold $k$.
+          \item \texttt{numeronyms.l}: The minimum word length (default value is 3) required for numeronym generation.
+        \end{itemize}
   \item The job is configured to use the \texttt{NumeronymMapper} and \texttt{NumeronymReducer} classes, with input and
         output formats set to \texttt{TextInputFormat} and \texttt{TextOutputFormat}, respectively.
   \item Finally, the job waits for completion before terminating.
@@ -179,8 +179,68 @@ This configuration was chosen to evaluate the performance and the behavior of th
 The dataset, containing a series of textual records, was processed to analyze various patterns and results.
 
 To provide a comprehensive overview, the results of the experiment, including the detailed values derived from the
-dataset, are presented in Appendix \ref{sec:data1} in a 2-column format.
+dataset, are presented in~\autoref{sec:data1} in a 2-column format.
 
+
+\section{Problem 2: Movie Analytics}
+\label{sec:problem2}
+The second problem focuses on producing analytic insights from an IMDB dataset.
+
+
+\subsection{Problem Statement}
+Implement a \textbf{MapReduce} program to perform analytics tasks on an IMDB dataset about movies. The utter goal of your analysis would be to extract useful insights from the available movie data that will assist the IMDB team provide better recommendations for movies, based on their genre and/or country. In particular, the dataset (\texttt{movies.csv}) contains the following fields:
+\begin{itemize}
+  \item imdbID: unique identifier of the movie in the IMDB database
+  \item title: the movie title
+  \item year: the year the movie was first released
+  \item duration: the duration of the movie
+  \item genre(s): the genre or genres in which the movie is classified
+  \item premier date: the date of the first showing of the movie
+  \item score: the IMDB score of the movie
+  \item country/-ies: the country or countries the movie was produced in
+\end{itemize}
+
+You are asked to implement Map-Reduce source code in Java programming language for the following analytics tasks:
+\begin{itemize}
+  \item Calculate the total duration of all movies per country. Note that in case multiple countries are recorded for a movie, the respective duration should be counted for all of them separately.
+  \item Calculate the total number of movies per year and genre, having IMDB score over 8. For movies that have more than one genre, the sum should be separate for each genre.
+\end{itemize}
+
+\subsection{Proposed approach}
+\subsubsection{Setting}
+Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
+We have used the Java Development Kit (JDK) version 11.0.11.
+The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using Maven as the build tool.
+
+The project’s dependencies, including Hadoop libraries, are defined in the \texttt{pom.xml} file located in the root of
+the repository.
+The project is compiled and executed directly from IntelliJ IDEA.
+
+To run the project, open the \texttt{MovieAnalyticsMaster} class in IntelliJ IDEA, and execute the main method.
+You will need to specify the following command-line arguments:
+
+\begin{itemize}
+  \item \texttt{<input\_path>} specifies the directory containing the input text files, located at \texttt{map-reduce/movieAnalytics/ input}.
+  \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be created in the \texttt{out} folder.
+\end{itemize}
+
+IntelliJ IDEA will handle the compilation and execution automatically when the main method is run. Make sure to configure the input and output paths as required for your specific run. Note that the command-line arguments must follow the specified order and format. If any of the arguments are missing or invalid, the program will terminate with an appropriate error message.
+
+\subsubsection{Implementation}
+The proposed approach leverages the MapReduce programming paradigm to compute the analytical insights for the two tasks. \autoref{img:movieAnalyticsSolutionDiagram} depicts the architecture of our solution as a diagram. We opt for executing two separate jobs; one for each task presented by the problem statement.
+
+\begin{figure}[tb!]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/movieAnalytics}
+  \caption{The MapReduce solution architecture for the movie analytics problem. Two separate jobs are executed to solve the two tasks, namely duration per country (green) and movies per year \& genre (yellow). The two tasks also create separate subdirectories for writing the results.}
+  \label{img:movieAnalyticsSolutionDiagram}
+\end{figure}
+
+\paragraph{Task 1: Duration per country} One map-reduce cycle is enough to handle this task, as depicted in the top part of~\autoref{img:movieAnalyticsSolutionDiagram} in green color. The map function parses the CSV file line by line and extracts the useful fields from each line. In this case, the useful fields are the country (or countries) the movie was produced and the movie duration, i.e., the fourth and ninth fields in the input line respectively. We employ more complex logic to handle cases where there are multiple countries in a single movie. In particular, we parse again the field and tokenize it into the separate countries, producing a key-value pair for each country-duration pair within a movie. The reduce function is, then, trivial; it just adds up the durations (value) per country (key) and outputs the results. The interested reader can refer to the \texttt{CSVProcessor.java} (mapper), \texttt{AnayticsEngine.java} (reducer) and \texttt{MovieAnalyticsMaster.java} (driver) files for the source code implementation of our solution.
+
+\paragraph{Task 2: Movies per year \& genre w.r.t. score constraint} The task is similar to the first one, with the only difference lying in the fields extracted from the input CSV line. In this case, we are interested about the year, the genre (or genres) and score fields, i.e., the third, fifth and seventh fields in the input CSV line. The map function produces key-value pairs in the form \texttt{(composite\_key, 1)}, where the composite key consists of the year and the genre of the respective movie concatenated by an underscore, e.g., \texttt{2024\_action}. We handle multiple genres per movie similarly with the multiple countries in task 1. We employ the same trivial reducer that adds up the values (ones) per (composite) key, as shown in the bottom part of~\autoref{img:movieAnalyticsSolutionDiagram} in yellow color.
+
+\subsubsection{Evaluation} Our solution is tested using the provided IMDB dataset, namely \texttt{movies.csv}. We list the execution results in~\autoref{sec:data2}.
 
 \section{Problem 4: Probabilistic graph}
 \label{sec:problem4}
@@ -244,7 +304,7 @@ You will need to specify the following command-line arguments:
 
 \begin{itemize}
   \item \texttt{<input\_path>} specifies the directory containing the input text files, located at
-  \texttt{map-reduce/ probabilisticGraph /input}.
+        \texttt{map-reduce/ probabilisticGraph /input}.
   \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be
         created in the \texttt{out} folder.
   \item \texttt{<T>} is the minimum edge-degree threshold for vertices to be included in the results.
@@ -347,7 +407,7 @@ This final output contains only the vertices that satisfy the filtering criteria
 The experiments were executed using the dataset `collins.txt` with a parameter setting of \( T = 0.8 \).
 
 To provide a comprehensive overview, the results of the experiment, including the detailed values derived from the
-dataset, are presented in Appendix \ref{sec:data4} in a 2-column format.
+dataset, are presented in~\autoref{sec:data4} in a 2-column format.
 
 
 
@@ -358,10 +418,13 @@ course
 on \emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.Sc. Program}.
 
 \appendix
-\section{Appendix}
-\subsection{Problem 1}
+\section{Problem 1}
 \label{sec:data1}
 \input{appendix1}
+
+\section{Problem 2}
+\label{sec:data2}
+\input{appendix2}
 
 \subsection{Problem 4}
 \label{sec:data4}
