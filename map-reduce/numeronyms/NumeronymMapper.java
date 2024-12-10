@@ -39,7 +39,7 @@ public class NumeronymMapper extends Mapper<LongWritable, Text, Text, IntWritabl
                 // Only process the word if its length is greater than or equal to the minimum length
                 if (length >= minLength) {
                     Text numeronym = new Text();
-                    numeronym.set(sWord.substring(0, 1) + length + sWord.substring(length - 1));
+                    numeronym.set(sWord.substring(0, 1) + (length-2) + sWord.substring(length - 1));
                     context.write(numeronym, one);
                 }
             }
