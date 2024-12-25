@@ -31,7 +31,7 @@ object Task1WordLength {
       .sortBy(letterToMeanLengthKV => letterToMeanLengthKV._2, ascending = false)
       .mapValues(roundToNDecimalPlaces(_, 2))
       .saveAsTextFile(OUTPUT_DIRECTORY)
-    println("Task 1 completed successfully. Check the output/ directory for the execution results")
+    println(s"Task 2 completed successfully. Check the \"$OUTPUT_DIRECTORY\" directory for the execution results")
   }
 
   /**
