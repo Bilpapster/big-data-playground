@@ -70,7 +70,7 @@ Wherever applicable, we also provide insights about the source code implementati
 Finally, we conclude our work in~\autoref{sec:conclusion}.
 The appendix includes the evaluation results for any issues that necessitated them.
 
-\section{Problem 1: Numeronyms}
+\section{Problem 1: Word Length Analytics}
 \label{sec:problem1}
 We discuss here the first problem of the assignment.
 The main target of the assignment is to get familiar with a simple task leveraging Apache Spark and Scala programming language. This is a WordCount problem's variation.
@@ -112,8 +112,8 @@ Having computed these intermediate results for each initial letter, the average 
 As a final step, the results are sorted in descending order w.r.t. the average length and saved to a text file. By default, after successful execution of the program, the results can be found under the \texttt{output/task1} directory.
 
 \subsubsection{Evaluation}
-The experiments were executed using the dataset \texttt{SherlockHolmes.txt}. The results are listed below in a 5-column format and graphically depicted in~\autoref{img:histogram:word_lengths}.
-\begin{multicols}{4}
+The experiments were executed using the dataset \texttt{SherlockHolmes.txt}. The results are listed below in a 10-column format and graphically depicted in~\autoref{img:histogram:word_lengths}.
+\begin{multicols}{10}
   \noindent
   c:7.19
   \\ e: 7.11
@@ -143,29 +143,6 @@ The experiments were executed using the dataset \texttt{SherlockHolmes.txt}. The
   \\ o: 3.01
   \label{multicol:test}
 \end{multicols}
-
-% import matplotlib.pyplot as plt
-% import matplotlib
-% import numpy as np
-
-% data = [ 7.19, 7.11, 7.01, 7.01, 6.87, 6.37, 5.98, 5.93, 5.8, 5.74, 5.61, 5.59, 5.37, 5.34, 5.17, 5.14, 4.81, 4.54, 4.28, 3.81, 3.74, 3.72, 3.64, 3.46, 3.41, 3.01]
-
-% letters = ['c', 'e', 'q', 'p', 'r', 'd', 'v', 'g', 's', 'z', 'u', 'j', 'k', 'l', 'f', 'm', 'n', 'b', 'w', 'h', 'a', 'y', 't', 'i', 'x', 'o']
-
-% font = {'family' : 'normal',
-%         'weight' : 'normal',
-%         'size'   : 30}
-
-% matplotlib.rc('font', **font)
-
-% plt.figure(figsize=(30, 10))
-% plt.bar(letters, data, color='orange', alpha=0.7)
-% plt.title('Word length Histogram')
-% plt.xlabel('Letter')
-% plt.ylabel('Average word length')
-% plt.axhline(y = np.mean(data), color = 'r', linestyle = '-.', label="Mean average word length")
-% plt.legend()
-% plt.show()
 
 \begin{figure}[tb!]
   \centering
@@ -234,62 +211,130 @@ The proposed approach leverages the MapReduce programming paradigm to compute th
 
 \subsubsection{Evaluation} Our solution is tested using the provided IMDB dataset, namely \texttt{movies.csv}. We list the execution results in~\autoref{sec:data2}.
 
-\section{Problem 3: DNA Sequence Patterns}
+\section{Problem 3: Movie Analytics}
 \label{sec:problem3}
-The third problem focuses on mining unstructured data, namely DNA sequences, encoded in text format.
+The third problem focuses on producing analytic insights into a movies dataset.
 
 
 \subsection{Problem Statement}
-A DNA sequence consists of four distinct symbols, namely A, G, C, and T. For instance, the following lines represent a part of the DNA sequence of the E. Coli bacterium~\footnote{\href{https://en.wikipedia.org/wiki/Pathogenic_Escherichia_coli}{https://en.wikipedia.org/wiki/Pathogenic\_Escherichia\_coli}}:
+In this problem, you are provided with a dataset that contains information about movies. Each record represents a movie and includes three main columns (attributes), namely \texttt{movieId}, \texttt{title} and \texttt{genres}. An example record of the dataset is the following:
 
 \begin{verbatim}
-AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC
-TTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGGTCACTAAATACTTTAACCAA
-TATAGGCATAGCGCACAGACAGATAAAAATTACAGAGTACACAACATCCATGAAACGCATTAGCACCACC
-ATTACCACCACCATCACCATTACCACAGGTAACGGTGCGGGCTGACGCGTACAGGAAACACAGAAAAAAG
+1,Toy Story (1995),Adventure|Animation|Children|Comedy|Fantasy
 \end{verbatim}
 
-Implement a \textbf{MapReduce} program that computes the frequency (i.e., number of occurrences) of all subsequences of lengths 2, 3, and 4 that are present in the input DNA sequence. Note that the processing of each line should be independent of all other lines. Use the file \texttt{ecoli.txt} to test your solution.
+Note that a movie can belong to multiple genres (e.g., adventure, fantasy, and so on). The genres are separated by a vertical line (`|') in the respective field. Your Apache Spark (Scala) application should compute the following analytics:
+\begin{enumerate}
+  \item \textbf{How many movies are there for each genre?} If a movie belongs to multiple genres, it should be counted to all these genres. Sort the results by the name of genre in alphabetical order.
+  \item \textbf{How many movies have been filmed per year?} Note that the year a movie was filmed is currently encoded into a composite movie title, e.g., ``\texttt{Toy Story (1995)}''. Show the top 10 years with the most movies filmed within them.
+  \item \textbf{Which are the words that appear at least 10 times in the titles of the movies, and what is their total frequency?} You can ignore words that have less than 4 characters. Sort the results, showing first the words with the higher frequency.
+\end{enumerate}
 
 \subsection{Proposed approach}
 \subsubsection{Setting}
-Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
-We have used the Java Development Kit (JDK) version 11.0.11.
-The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using Maven as the build tool.
+Our implementation is run and tested in a Linux environment with 12 cores, using the Scala programming language version 2.13.15 and Apache Spark version 3.5.3. We have used SBT as the build tool of our solution.
+We have used the Software Development Kit (JDK) version 11.0.11.
+The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using SBT as the build tool. All dependencies of the project can be found in the \texttt{build.sbt} file located at the root folder of the project.
+The project is compiled and executed directly from the IntelliJ IDEA.
 
-The project’s dependencies, including Hadoop libraries, are defined in the \texttt{pom.xml} file located in the root of
-the repository.
-The project is compiled and executed directly from IntelliJ IDEA.
-To run the project, open the \texttt{DNASequenceAnalyticsMaster} class in IntelliJ IDEA, and execute the main method.
-You will need to specify the following command-line arguments:
+To run the project, open the \texttt{src/main/scala/Task3MovieAnalytics.scala} file in IntelliJ IDEA, and execute the main method. After successful execution of the program, the results can be viewed under the \texttt{output/task3} directory.
 
-\begin{itemize}
-  \item \texttt{<input\_path>} specifies the directory containing the input text files, located at \texttt{map-reduce/ \\ dnaSequencePatterns/input}.
-  \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be created in the \texttt{out} folder.
-\end{itemize}
+\subsubsection{Implementation} We leverage Apache Spark \emph{DataFrames} API to calculate the aforementioned analytical queries. Our proposed approach comprises the following four stages:
+\begin{description}
+  \item[Stage 1:] Data cleaning and preprocessing
+  \item[Stage 2:] Computation of genre analytics (query 1)
+  \item[Stage 3:] Computation of year analytics (query 2)
+  \item[Stage 4:] Computation of title analytics (query 3)
+\end{description}
+\autoref{img:movieAnalyticsSolutionDiagram} graphically depicts the four stages, as well as their assembly in a workflow. We elaborate on each stage separately in the rest of the Subsection.
 
-IntelliJ IDEA will handle the compilation and execution automatically when the main method is run. Make sure to configure the input and output paths as required for your specific run. Note that the command-line arguments must follow the specified order and format. If any of the arguments are missing or invalid, the program will terminate with an appropriate error message.
+\begin{figure}[tb!]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/movieAnalytics}
+  \caption{The MapReduce solution architecture for the movie analytics problem. Two separate jobs are executed to solve the two tasks, namely duration per country (green) and movies per year \& genre (yellow). The two tasks also create separate subdirectories for writing the results.}
+  \label{img:movieAnalyticsSolutionDiagram}
+\end{figure}
 
-\subsubsection{Implementation} \autoref{algo:subsequences} summarizes the most substantial part of our implementation, namely the logic that is implemented inside the mappers of our solution. At every execution of the map function, a DNA sequence line is given as input to the mapper. The latter is responsible for populating all possible subsequences of length 2, 3 and 4. We employ a sliding window that is nested inside a for-loop defining the subsequence length. The source code implementation of~\autoref{algo:subsequences} can be found in the \texttt{DNASequenceProcessor.java} file.
+\paragraph{Stage1: Data Cleaning and preprocessing} In this stage, we address data quality issues that are present in the raw movie data. Missing production year, missing genres and trailing whitespaces in the title string are the detected data quality issues. To address these issues, we explicitly mark the movie year as ``N/A'' (not available) \& movie genre as ``(no genre listed)'' and trim the composite title strings, respectively. Subsequently, we transform the data representation to a more efficient form, by extracting the actual title and year to separate fields (instead of a composite one) and splitting the genres composite string field to an array of genres. Throughout the whole process, we \textbf{use solely the DataFrame API} of Apache Spark, leveraging also the pattern matching functionality of Scala. A small sample of the cleaned and transformed DataFrame shown in~\autoref{img:movieAnalyticsSolutionDiagram} is depicted below:
 
-\begin{algorithm}[!tb]
-  \caption{Populating DNA subsequences}
-  \label{algo:subsequences}
-  \begin{algorithmic}[1]
-    \LComment{Input: a DNA sequence $line$ (variable line)}
-    \For{$length \in \{2, 3, 4\}$}
-    \State Create a sliding window $window$ of length $length$.
-    \State Place left end of $window$ at the start of $line$.
-    \While{right end of $window$ has not exceeded $line$}
-    \State $subsequence \gets$ contents of $window$
-    \State Yield $(subsequence, 1)$ key-value pair.
-    \State Slide window to the right by $1$.
-    \EndWhile
-    \EndFor
-  \end{algorithmic}
-\end{algorithm}
+\begin{verbatim}
+                  +-------+--------------------+--------------------+----+
+                  |movieId|               title|              genres|year|
+                  +-------+--------------------+--------------------+----+
+                  |      1|           Toy Story|[Adventure, Anima...|1995|
+                  |      2|             Jumanji|[Adventure, Child...|1995|
+                  |      3|    Grumpier Old Men|   [Comedy, Romance]|1995|
+                  |      4|   Waiting to Exhale|[Comedy, Drama, R...|1995|
+                  |      5|Father of the Bri...|            [Comedy]|1995|
+                  +-------+--------------------+--------------------+----+
+\end{verbatim}
 
-\subsubsection{Evaluation} Our solution is tested using the provided DNA sequence, namely \texttt{ecoli.txt}. We list the execution results in~\autoref{sec:data3}.
+\paragraph{Stage 2: Computation of genre analytics} In this stage, we use the cleaned and transformed data to compute analytical insights into the movie genres. In particular, we use the DataFrame API (\texttt{select()}, \texttt{group\_by()}, etc.) to calculate the number of movies that belong to each genre. An implementation detail of our solution lies in handling the cases where a movie belongs to multiple genres. To ensure the integrity of the computed analytics, we opt for using the \texttt{explode()} function of the DataFrame API, to transform the array of genres to separate genre items. The analytics are, then, computed on top of this extra transformation, enabling us to include \textbf{a movie into the calculations of all the genres it belongs}.
+
+\paragraph{Stage 3: Computation of year analytics} In this stage, we use the cleaned and transformed data to compute analytical insights into the movie production years. Similarly to Stage 2, we leverage exclusively the DataFrame API to calculate the total number of movies filmed each year. In this case, the \texttt{group\_by} operation is more straightforward, since the cleaned and transformed DataFrame contains a dedicated column for the movie production year.
+
+\paragraph{Stage 4: Computation of title analytics} Similarly to Stage 2, we use operations available from the DataFrame API to calculate the most frequently used words in the movie titles. We, leverage the \texttt{split(" ")} and \texttt{explode()} functions to transform titles, first, into an array of words and, then, into separate words that are finally grouped and aggregated. We remove words that have less than 4 characters and fundamental stopwords, such as ``with'', or ``from'', in order to obtain analytical insights of high quality.
+
+\subsubsection{Evaluation} Our solution is tested using the raw movie data, namely \texttt{movies.csv}. We list the execution results in~\autoref{sec:data3}.
+
+\paragraph{Stage 2: Computation of genre analytics}
+We list here the execution results for the genre analytics query in a 6-column format.
+\begin{multicols}{6}
+  \noindent
+  Action: 7348
+  \\ Adventure: 4145
+  \\ Animation: 2929
+  \\ Children: 2935
+  \\ Comedy: 16870
+  \\ Crime: 5319
+  \\ Documentary: 5605
+  \\ Drama: 25606
+  \\ Fantasy: 2731
+  \\ Film-Noir: 353
+  \\ Horror: 5989
+  \\ IMAX: 195
+  \\ Musical: 1054
+  \\ Mystery: 2925
+  \\ Romance: 7719
+  \\ Sci-Fi: 3595
+  \\ Thriller: 8654
+  \\ War: 1874
+  \\ Western: 1399
+  \\ N/A: 5062
+\end{multicols}
+
+\paragraph{Stage 3: Computation of year analytics}
+We list here the execution results for the year analytics query in a 3-column format, i.e., the top 10 years with the most movies. We observe that these years span the time period between 2009 and 2018, excluding 2015, indicating a heavy film production process in this decade. \autoref{img:movies_per_year} depicts the distribution of movies per year for all years in chronological order. Our findings indicate a clear long-tail distribution of movies over the years, with a burst of new movies over the last decade.
+\begin{multicols}{3}
+  \centering
+  \noindent
+  2015: 2512 movies
+  \\ 2016: 2488 movies
+  \\ 2014: 2406 movies
+  \\ 2017: 2373 movies
+  \\ 2013: 2173 movies
+  \\ 2018: 2032 movies
+  \\ 2012: 1978 movies
+  \\ 2011: 1838 movies
+  \\ 2009: 1724 movies
+  \\ 2010: 1691 movies
+\end{multicols}
+
+\begin{figure}[tb!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/movies per year}
+  \caption{The distribution of the total number of movies per year in the dataset used for evaluating our solution.}
+  \label{img:movies_per_year} 
+\end{figure}
+
+\paragraph{Stage 4: Computation of title analytics}
+We list in~\autoref{sec:data3} the execution results for the title analytics query.Also, ~\autoref{img:word_cloud} depicts a word cloud with the most frequently used words in movie titles, found in the dataset used for evaluating our solution. Note that the bigger a word is, the more frequently it appears in movie titles.
+\begin{figure}[tb!]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/word cloud}
+  \caption{A word cloud depicting the most frequent words appearing in the titles of the movies in the dataset examined. The bigger a word is, the more frequently it appears in the titles of the movies.}
+  \label{img:word_cloud}
+\end{figure}
 
 \section{Problem 4: Probabilistic graph}
 \label{sec:problem4}
@@ -467,9 +512,6 @@ course on \emph{Technologies for Big Data Analysis}, offered by the \emph{DWS M.
 
 \newpage
 \appendix
-\section{Problem 1 execution results}
-\label{sec:data1}
-\input{appendix1}
 
 \section{Problem 2 execution results}
 \label{sec:data2}
