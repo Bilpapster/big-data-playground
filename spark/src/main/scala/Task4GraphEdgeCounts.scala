@@ -36,7 +36,6 @@ object Task4GraphEdgeCounts {
     val top10Outgoing: Array[(String, Int)] = outgoingCounts
       .top(10)(Ordering[Int].on[(String, Int)](_._2))
 
-    // Print results
     println("Top 10 nodes with the most incoming edges:")
     top10Incoming.foreach(println)
 
