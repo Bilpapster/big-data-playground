@@ -437,168 +437,112 @@
   The main target of the assignment is to get acquainted with performing various MapReduce phases on a pipeline frame.
 
   \subsection{Problem Statement}
-  We are given an input file in text format where each line contains a connection between two vertices of a network and a
-  probability value.
-  For each edge \( e \), there is a probability value \( p(e) \) which indicates the probability that the two vertices are
-  connected by the edge.
-  Obviously, the values of \( p(e) \) range between 0 and 1.
-  The values in each line are separated by a space.
-  Consider the network shown in the previous figure.
-  The edge connecting vertices 4 and 5 has a probability of
-  0.8, the edge connecting vertices 2 and 3 has a probability of 0.2, etc.
-
+  Given a directed graph consisting of nodes and directed edges, stored in the edge-list format in a txt or csv file, you are requested to do the following tasks:
+  \begin{itemize}
+    \item Implement a program, utilizing the RDD Spark's framework, that for each node of the graph, it will calculate the number of incoming and the number of outgoing edges. The program should print out the 10 nodes with the most incoming and outgoing edges, respectively.
+    \item Modify the previous implementation, so as not to discriminate the direction of the edge, so that the degree of a node is calculated by the number of edges lying on it. The program should print the number of nodes with degree greater than or equal to the mean degree.
+  \end{itemize}
+  Use the edge-list (txt) file provided in \url{http://snap.stanford.edu/data/web-Stanford.txt.gz}.
   \begin{figure}[h]
     \centering
     \includegraphics[width=0.25\linewidth]{figures/graph}
   \end{figure}
 
-  The file corresponding to this graph would be:
-
-  \[
-    1 \ 2 \ 0.6, \\
-    1 \ 3 \ 0.9, \\
-    2 \ 3 \ 0.2, \\
-    3 \ 4 \ 0.75, \\
-    2 \ 5 \ 0.2, \\
-    4 \ 5 \ 0.8,
-  \]
-
-  The edges are generally stored in random order in the file, so we cannot assume they have a specific arrangement.
-
-  The following tasks are requested:
-
-  \begin{enumerate}
-    \item Write a Java program that computes the average degree for all the vertices.
-    \item The average degree is defined as the sum of the probabilities of the edges that fall on a vertex.
-    \item For example, in the previous diagram, the average degree of vertex 3 is \( 0.9 + 0.2 + 0.75 = 1.85 \).
-    \item Before performing this calculation, you should ignore all edges with a probability less than a threshold \( T \)
-    , which should be passed as a parameter to the main function.
-    \item Modify the code from task 1 so that, at the end, only the vertices with an average degree greater than the
-    average of the degrees of all the vertices are displayed in the output.
-
-  \end{enumerate}
-
   \subsection{Proposed approach}
   \subsubsection{Setting}
-  Our implementation is run and tested in a Linux environment with 12 cores, using the Java programming language.
-  We have used the Java Development Kit (JDK) version 11.0.11.
-  The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using Maven as the build tool.
+  Our implementation is run and tested in a Linux environment with 12 cores, using the Scala programming language version 2.13.15 and Apache Spark version 3.5.3. We have used SBT as the build tool of our solution.
+  We have used the Software Development Kit (JDK) version 11.0.11.
+  The source code is developed in IntelliJ IDEA Community Edition 2021.1.1 and managed using SBT as the build tool. All dependencies of the project can be found in the \texttt{build.sbt} file located at the root folder of the project.
+  The project is compiled and executed directly from the IntelliJ IDEA.
 
-  The project’s dependencies, including Hadoop libraries, are defined in the \texttt{pom.xml} file located in the root of
-  the repository.
-  The project is compiled and executed directly from IntelliJ IDEA.
+  To run the project, open the \texttt{src/main/scala/Task4GraphEdgeCounts.scala} file in IntelliJ IDEA, and execute the main method. After successful execution of the program, the results can be viewed under the \texttt{output/task4} directory.
 
-  To run the project, open the \texttt{GraphMaster} class in IntelliJ IDEA, and execute the main method.
-  You will need to specify the following command-line arguments:
-
-  \begin{itemize}
-    \item \texttt{<input\_path>} specifies the directory containing the input text files, located at
-    \texttt{map-reduce/ probabilisticGraph /input}.
-    \item \texttt{<output\_path>} specifies the directory where the MapReduce output will be written, which will be
-    created in the \texttt{out} folder.
-    \item \texttt{<T>} is the minimum edge-degree threshold for vertices to be included in the results.
-  \end{itemize}
-
-  IntelliJ IDEA will handle the compilation and execution automatically when the main method is run.
-  Make sure to configure the input and output paths as required for your specific run.
-
-  Note that the command-line arguments must follow the specified order and format.
-  If any of the arguments are missing or invalid, the program will terminate with an appropriate error message.
 
   \subsubsection{Implementation}
-  The problem at hand involves processing a probabilistic graph, where each edge connects two vertices with a probability
-  value.
-  The task is to compute the average degree for each vertex, considering only edges whose probability exceeds a given
-  threshold \( T \).
-  The methodology proposed here utilizes a distributed MapReduce framework, implemented using Hadoop, to efficiently
-  process and analyze large-scale graph data.
-  The approach is divided into three main phases, each handled by separate MapReduce jobs, with intermediate results
-  passed between the phases.
+  The task involves working with a directed graph stored in an edge-list format, where each edge is represented as a tuple of source and destination nodes. The goal is to develop a solution using Apache Spark's Resilient Distributed Datasets (RDDs) framework to calculate and analyze edge counts for the nodes in the graph. The approach consists of the following key steps:
 
-  The \texttt{GraphMaster} class serves as the orchestrator of the entire MapReduce process.
-  It manages the execution of the three phases, invoking the appropriate MapReduce jobs in sequence.
-  The main steps executed by \texttt{GraphMaster} are:
+  \textbf{Preprocessing.}
+  First, the graph data, stored in a text or CSV file, is read into an RDD. The RDD is filtered to remove any comments (lines starting with \texttt{\#}), ensuring that only valid edge data is processed.
 
-  \begin{enumerate}
-    \item It retrieves the command-line arguments, including the input and output directories as well as the threshold
-    value \( T \), which determines which edges to consider in the graph.
-    \item It initiates the first MapReduce job to compute the degree of each vertex in the graph.
-    The input consists of edge data, and the output is a summation of edge probabilities for each vertex.
-    \item After the first job completes, the \texttt{GraphMaster} starts the second MapReduce job to calculate the mean
-    degree of the graph, using the results from the first job.
-    \item Once the mean degree is computed, \texttt{GraphMaster} starts the third MapReduce job, which filters out the
-    vertices with degrees lower than the mean degree.
-    \item It cleans up intermediate directories after each phase and moves the final output to the desired location.
-  \end{enumerate}
+  For each edge in the graph, the source node is identified, and a tuple \texttt{(src, 1)} is created for each source node. These tuples (\texttt{outgoingCounts}) are then aggregated by the \texttt{reduceByKey} function to calculate the total number of outgoing edges for each node. The result is an RDD of node and outgoing edge count pairs.
 
-  \texttt{GraphMaster} coordinates these steps by configuring and executing the MapReduce jobs, ensuring that each phase
-  depends on the results of the previous one. \\
+  Similarly, for each edge, the destination node is identified, and a tuple \texttt{(dest, 1)} is created for each destination node. The \texttt{reduceByKey} function is again used to calculate the total number of incoming edges for each node,    resulting in an RDD of node and incoming edge count pairs (\texttt{incomingCounts}).
 
-  The entire process consists of three MapReduce jobs, executed sequentially:
+  \textbf{Top 10 nodes}
+  To identify the top 10 nodes with the most incoming and outgoing edges, the \texttt{top} function is used, which sorts the nodes in descending order based on the edge counts. These top nodes are saved into separate output files: one for the nodes with the most incoming edges and another for the nodes with the most outgoing edges.
 
-  \begin{enumerate}
-    \item \textbf{Phase 1:} The first job computes the degree of each vertex by summing the probabilities of the edges
-    connected to it.
-    It produces intermediate results for each vertex.
-    \item \textbf{Phase 2:} The second job calculates the mean degree by summing the degrees from the first phase and
-    dividing by the total number of vertices.
-    \item \textbf{Phase 3:} The third job filters out the vertices with a degree lower than the mean degree and produces
-    the final filtered result.
-  \end{enumerate}
+  \textbf{Degree-based filtering}
+  In the modified implementation, the direction of the edges is ignored to calculate the degree of each node. The degree is calculated as the sum of the incoming and outgoing edge counts for each node. This is achieved using a \texttt{fullOuterJoin} between the RDDs of incoming and outgoing edge counts, followed by a transformation that sums the values for each node. In cases where a node only has outgoing or incoming edges but not both, the missing values are treated as 0.
 
-  After each job completes, intermediate data is written to disk and passed as input to the subsequent job.
-  The final output consists of the vertices whose degree exceeds or equals the mean degree. \\
+  The mean degree of the graph is then calculated by summing the degrees of all nodes and dividing by the total number of nodes. This value is used to filter the nodes with a degree greater than or equal to the mean degree.
 
-  \textbf{Phase 1: Calculating Vertex Degree}
-  The first MapReduce job is responsible for calculating the degree of each vertex in the graph, where the degree is
-  defined as the sum of the probabilities of the edges connected to that vertex.
-  The degree of each vertex is computed by the \texttt{GraphMapper} and \texttt{GraphReducer} classes.
+  The filtered nodes are saved to an output file, and the total count of such nodes is printed. This provides insight into how many nodes in the graph have a degree that meets or exceeds the average.
 
-  The \texttt{GraphMapper} class reads each edge from the input data, which consists of lines containing two vertices
-  and the associated probability value.
-  It splits each line into two components (the two vertices), and for each vertex, it emits the corresponding probability
-  value as the output.
-  The mapper also checks if the probability value exceeds the threshold \( T \), which is provided as a configuration
-  parameter.
-  If the probability is greater than or equal to \( T \), it emits the vertex along with the corresponding probability.
+  The final output consists of the following:
+  \begin{itemize}
+    \item The 10 nodes with the most incoming edges.
+    \item The 10 nodes with the most outgoing edges.
+    \item The number of nodes with a degree greater than or equal to the mean degree, along with the corresponding list of nodes.
+  \end{itemize}
 
-  The \texttt{GraphReducer} class receives the vertex and associated probability values emitted by the mapper.
-  For each vertex, it sums up all the probabilities of the edges connected to that vertex, and emits the pair as output.
+  \subsubsection{Evaluation} Our solution is tested using the provided edge-list Stanford dataset, namely \texttt{web-Stanford.txt}. The results are presented below.
 
-  \textbf{Phase 2: Calculating the Mean Degree}
-  The second phase of the approach calculates the mean degree of all vertices.
-  This is done by summing the degree values from the previous phase and dividing by the total number of vertices.
+  \begin{table}[h!]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+      \centering
+      \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Node} & \textbf{Incoming} \\ \hline
+        226411 & 38606\\ \hline
+        234704 & 21920\\ \hline
+        105607 & 19457\\ \hline
+        241454 & 19377\\ \hline
+        167295  & 19003\\ \hline
+        198090 & 18975\\ \hline
+        81435 & 18970\\ \hline
+        214128 & 18967\\ \hline
+        38342 & 18958\\ \hline
+        245659 & 18935\\ \hline
+      \end{tabular}
+      \caption{Top-10 nodes with most incoming edges}
+    \end{minipage} \hspace{0.3cm}
+    \begin{minipage}{0.45\textwidth}
+      \centering
+      \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Node} & \textbf{Incoming} \\ \hline
+        82409 & 255\\ \hline
+        82868 & 247\\ \hline
+        188978 & 247\\ \hline
+        16984 & 247\\ \hline
+        86290 & 247\\ \hline
+        180611 & 247\\ \hline
+        10699 & 245\\ \hline
+        121634 & 245\\ \hline
+        176419 & 244\\ \hline
+        255711 & 244\\ \hline
+      \end{tabular}
+      \caption{Top-10 nodes with most outgoing edges}
+    \end{minipage}
+  \end{table}
 
-  The \texttt{MeanMapper} class receives the degree values from the output of the first MapReduce job.
-  It emits two key-value pairs for each input line: a count of the number of vertices and the sum of the degree values.
-  These are emitted with fixed keys (\texttt{"count"} and \texttt{"sum"}) so that they can be aggregated in the reducer.
+  \begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|c|}
+      \hline
+      \textbf{Airline} & \textbf{Reason} & \textbf{Count} \\ \hline
+      American & Customer Service Issue & 654  \\ \hline
+      Delta & Late Flight & 228 \\ \hline
+      Southwest & Customer Service Issue & 323 \\ \hline
+      US Airways & Customer Service Issue & 698 \\ \hline
+      United & Customer Service Issue & 545 \\ \hline
+      Virgin America & Customer Service Issue & 51 \\ \hline
+    \end{tabular}
+    \caption{Top complaints for each Airline}
+  \end{table}
 
-  The \texttt{MeanReducer} class processes the count and sum values emitted by the mapper.
-  It calculates the total sum and count of vertices and then writes these values as output.
-  The mean degree is calculated by dividing the sum by the count, and the result is stored for use in the next phase.
-
-  \textbf{Phase 3: Filtering Vertices by Mean Degree}
-  In the third phase, the vertices whose degree is greater than or equal to the mean degree calculated in Phase 2 are
-  selected.
-  This phase uses the results from Phase 1 and Phase 2, applying the filtering criteria to retain only those vertices with
-  a degree greater than or equal to the mean.
-
-  The \texttt{FilterMapper} class takes the degree values emitted by the first reducer and writes them as key-value pairs.
-  Each key is a vertex, and the value is the degree of that vertex.
-  The mapper does not perform any filtering; instead, it simply passes the values along to the reducer.
-
-  The \texttt{FilterReducer} class filters out the vertices whose degree is less than the mean degree.
-  It retrieves the mean degree from the configuration, and for each vertex, it compares the degree value to the mean.
-  If the degree is greater than or equal to the mean, it emits the vertex along with its degree.
-  This final output contains only the vertices that satisfy the filtering criteria.
-
-  \subsubsection{Evaluation}
-  The experiments were executed using the dataset `collins.txt` with a parameter setting of \( T = 0.8 \).
-
-  To provide a comprehensive overview, the results of the experiment, including the detailed values derived from the
-  dataset, are presented in~\autoref{sec:data4} in a 2-column format.
-
-
+  The number of nodes with degree greater than or equal to the average degree (16.41) is \textbf{54933}.
 
   \section{Conclusion}
   \label{sec:conclusion}
@@ -608,18 +552,9 @@
   \newpage
   \appendix
 
-  \section{Problem 2 execution results}
-  \label{sec:data2}
-  \input{appendix2}
-
   \section{Problem 3 execution results}
   \label{sec:data3}
   \input{appendix3}
-
-  \subsection{Problem 4 execution results}
-  \label{sec:data4}
-  \input{appendix4}
-
 
 \end{document}
 \endinput

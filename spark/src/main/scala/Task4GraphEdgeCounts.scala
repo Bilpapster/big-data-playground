@@ -38,9 +38,13 @@ object Task4GraphEdgeCounts {
 
     val top10Incoming: Array[(String, Int)] = incomingCounts
       .top(10)(Ordering[Int].on[(String, Int)](_._2))
+    println("Top 10 nodes with the most incoming edges: ")
+    top10Incoming.foreach(println)
 
     val top10Outgoing: Array[(String, Int)] = outgoingCounts
       .top(10)(Ordering[Int].on[(String, Int)](_._2))
+    println("Top 10 nodes with the most outgoing edges: ")
+    top10Outgoing.foreach(println)
 
     val top10IncomingRDD: RDD[(String, Int)] = sc.parallelize(top10Incoming)
     top10IncomingRDD.saveAsTextFile("output/task4/top10_incoming")
