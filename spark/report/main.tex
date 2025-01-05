@@ -96,7 +96,7 @@
   \subsubsection{Implementation}
   The proposed approach leverages the Apache Spark computing framework to calculate the average word length for each one of the 26 letters in the Latin alphabet. In particular, the input text is read and tokenized into words. As part of a preprocessing step, all letters are transformed to lowercase and all words that start with a number are dropped.
 
-  In order to compute the average length for each initial letter, we leverage the \texttt{RDD} API of Apache Spark. More specifically, we use a \texttt{PairRDD} that stores composite key-value pairs in the form \texttt{(letter, (word\_length, 1))}. The key of each pair is the initial letter of the respective word (\texttt{letter}). The value of each pair is a pair itself, having as (false) key the length of the word (\texttt{word\_length}) and as (false) value a unary value (\texttt{1}). We use the term \emph{false} for the key and value of the inner pair, since we do not utilize them as an actual key-value pair. As a matter of fact, we treat the inner pair as a plain tuple of values,.
+  In order to compute the average length for each initial letter, we leverage the \texttt{RDD} API of Apache Spark. More specifically, we use a \texttt{PairRDD} that stores composite key-value pairs in the form \texttt{(letter, (word\_length, 1))}. The key of each pair is the initial letter of the respective word (\texttt{letter}). The value of each pair is a pair itself, having as (false) key the length of the word (\texttt{word\_length}) and as (false) value a unary value (\texttt{1}). We use the term \emph{false} for the key and value of the inner pair, since we do not utilize them as an actual key-value pair; we treat this pair as a plain tuple of values instead.
 
   Subsequently, we group all pairs by key (i.e., initial letter) and compute the following two intermediate results \emph{per initial letter}:
   \begin{enumerate}
@@ -111,8 +111,17 @@
 
   As a final step, the results are sorted in descending order w.r.t. the average length and saved to a text file. By default, after successful execution of the program, the results can be found under the \texttt{output/task1} directory.
 
+  \begin{figure}[tb!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/download}
+    \caption{A histogram depicting the average word length (y-axis) for every letter of the Latin alphabet (x-axis). The mean average length is shown as a horizontal red dashed line.}
+    \label{img:histogram:word_lengths}
+  \end{figure}
+  
+
   \subsubsection{Evaluation}
   The experiments were executed using the dataset \texttt{SherlockHolmes.txt}. The results are listed below in a 10-column format and graphically depicted in~\autoref{img:histogram:word_lengths}.
+
   \begin{multicols}{10}
     \noindent
     c:7.19
@@ -144,13 +153,7 @@
     \label{multicol:test}
   \end{multicols}
 
-  \begin{figure}[tb!]
-    \centering
-    \includegraphics[width=\linewidth]{figures/download}
-    \caption{A histogram depicting the average word length (y-axis) for every letter of the Latin alphabet (x-axis). The mean average length is shown as a horizontal red dashed line.}
-    \label{img:histogram:word_lengths}
-  \end{figure}
-
+  \newpage
   \section{Problem 2: Airline Tweets analytics}
   \label{sec:problem2}
   The second problem focuses on producing analytic insights from an Twitter feedback post for airline services.
@@ -346,7 +349,7 @@
   \begin{figure}[tb!]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/movieAnalytics}
-    \caption{The MapReduce solution architecture for the movie analytics problem. Two separate jobs are executed to solve the two tasks, namely duration per country (green) and movies per year \& genre (yellow). The two tasks also create separate subdirectories for writing the results.}
+    \caption{The four stages of our proposed approach to compute the movie analytics, assembled in a workflow.}
     \label{img:movieAnalyticsSolutionDiagram}
   \end{figure}
 
@@ -364,13 +367,13 @@
                   +-------+--------------------+--------------------+----+
   \end{verbatim}
 
-  \paragraph{Stage 2: Computation of genre analytics} In this stage, we use the cleaned and transformed data to compute analytical insights into the movie genres. In particular, we use the DataFrame API (\texttt{select()}, \texttt{group\_by()}, etc.) to calculate the number of movies that belong to each genre. An implementation detail of our solution lies in handling the cases where a movie belongs to multiple genres. To ensure the integrity of the computed analytics, we opt for using the \texttt{explode()} function of the DataFrame API, to transform the array of genres to separate genre items. The analytics are, then, computed on top of this extra transformation, enabling us to include \textbf{a movie into the calculations of all the genres it belongs}.
+  \paragraph{Stage 2: Computation of genre analytics} In this stage, we use the cleaned and transformed data to compute analytical insights into the movie genres. In particular, we use the DataFrame API (\texttt{select()}, \texttt{group\_by()}, etc.) to calculate the number of movies that belong to each genre. An implementation detail of our solution lies in handling the cases where a movie belongs to multiple genres. To ensure the integrity of the computed analytics, we opt for using the \texttt{explode()} function of the DataFrame API, to transform the array of genres to separate genre items. The analytics are, then, computed on top of this extra transformation, enabling us to \textbf{include a movie into the calculations of all the genres it belongs}.
 
   \paragraph{Stage 3: Computation of year analytics} In this stage, we use the cleaned and transformed data to compute analytical insights into the movie production years. Similarly to Stage 2, we leverage exclusively the DataFrame API to calculate the total number of movies filmed each year. In this case, the \texttt{group\_by} operation is more straightforward, since the cleaned and transformed DataFrame contains a dedicated column for the movie production year.
 
   \paragraph{Stage 4: Computation of title analytics} Similarly to Stage 2, we use operations available from the DataFrame API to calculate the most frequently used words in the movie titles. We, leverage the \texttt{split(" ")} and \texttt{explode()} functions to transform titles, first, into an array of words and, then, into separate words that are finally grouped and aggregated. We remove words that have less than 4 characters and fundamental stopwords, such as ``with'', or ``from'', in order to obtain analytical insights of high quality.
 
-  \subsubsection{Evaluation} Our solution is tested using the raw movie data, namely \texttt{movies.csv}. We list the execution results in~\autoref{sec:data3}.
+  \subsubsection{Evaluation} Our solution is tested using the raw movie data, namely \texttt{movies.csv}. We list the execution results below, if of appropriate length, else in~\autoref{sec:data3}.
 
   \paragraph{Stage 2: Computation of genre analytics}
   We list here the execution results for the genre analytics query in a 6-column format.
@@ -423,7 +426,7 @@
   \end{figure}
 
   \paragraph{Stage 4: Computation of title analytics}
-  We list in~\autoref{sec:data3} the execution results for the title analytics query.Also, ~\autoref{img:word_cloud} depicts a word cloud with the most frequently used words in movie titles, found in the dataset used for evaluating our solution. Note that the bigger a word is, the more frequently it appears in movie titles.
+  We list in~\autoref{sec:data3} the execution results for the title analytics query. Also, ~\autoref{img:word_cloud} depicts a word cloud with the most frequently used words in movie titles, found in the dataset used for evaluating our solution. Note that the bigger a word is, the more frequently it appears in movie titles.
   \begin{figure}[tb!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/word cloud}
