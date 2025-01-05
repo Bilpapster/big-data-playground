@@ -12,20 +12,17 @@
 \usepackage{multicol}
 \usepackage{geometry}
 \newcommand{\todo}{{\color{red}\textbf{TODO} }}
-\newcommand{\disease}{{\small \texttt{DISEASE}} }
-\newcommand{\hospital}{{\small \texttt{HOSPITAL}} }
-\newcommand{\storage}{{\small \texttt{STORAGE}} }
 
 % christos 2, 4
 % vasilis 1, 3
 
 \usepackage{amsmath}
 \usepackage{subfig}
-
 \usepackage{hyperref}
-\usepackage{algorithm}
-\usepackage{algpseudocodex}
-\newcommand{\algorithmautorefname}{Algorithm}
+
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Subsection}
+\renewcommand{\subsubsectionautorefname}{Subsection}
 
 \begin{document}
 
@@ -113,7 +110,7 @@
 
   \begin{figure}[tb!]
     \centering
-    \includegraphics[width=\linewidth]{figures/download}
+    \includegraphics[width=\linewidth]{figures/wordLengthHistogram}
     \caption{A histogram depicting the average word length (y-axis) for every letter of the Latin alphabet (x-axis). The mean average length is shown as a horizontal red dashed line.}
     \label{img:histogram:word_lengths}
   \end{figure}
