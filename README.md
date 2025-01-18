@@ -58,7 +58,7 @@ To explore our work:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/big-data-analytics-exploration.git
+   git clone https://github.com/Bilpapster/big-data-playground.git
 2. Navigate to the desired section's directory.
 3. Refer to the  `report/main.pdf` within that directory for a comprehensive overview of the implementation. These files also contain instructions, should you wish to set up and run the code.
 
