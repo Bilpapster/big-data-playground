@@ -66,6 +66,6 @@ To explore our work:
 
 ## Contact
 - Vasileios Papastergios [ [email](mailto:bilpapster@gmail.com) | [GitHub](https://github.com/bilpapster) ]
-- Christos Balaktsis [ [email](mailto:mpalaktsc@csd.auth.gr) |  [GitHub](https://github.com/balaktsis) ]
+- Christos Balaktsis [ [email](mailto:balaktsis@csd.auth.gr) |  [GitHub](https://github.com/balaktsis) ]
 
 Thank you for visiting!
